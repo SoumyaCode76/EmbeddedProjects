@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "test.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -61,6 +62,8 @@ static void MX_GPIO_Init(void);
   * @brief  The application entry point.
   * @retval int
   */
+
+extern int addition(int a, int b);
 int main(void)
 {
 
@@ -99,6 +102,7 @@ int main(void)
     HAL_Delay(1000);
     HAL_GPIO_WritePin(GPIOG, GPIO_PIN_13, GPIO_PIN_RESET);
     HAL_Delay(1000);
+    int c = addition(3, 4);
 
     /* USER CODE BEGIN 3 */
   }
