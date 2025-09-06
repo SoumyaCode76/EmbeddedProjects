@@ -1,0 +1,15 @@
+build
+mx.scratch
+!.settings
+*.elf
+*.bin
+*.hex
+*.eep
+*.map
+*.lss
+*.sym
+*.obj
+*.d
+*.obj
+*.a
+*.lib
