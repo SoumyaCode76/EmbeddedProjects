@@ -98,12 +98,24 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
+    static unsigned int wait_count = 2;
     HAL_GPIO_WritePin(GPIOG, GPIO_PIN_13, GPIO_PIN_SET);
-    HAL_Delay(1000);
+    HAL_Delay(wait_count);
     HAL_GPIO_WritePin(GPIOG, GPIO_PIN_13, GPIO_PIN_RESET);
-    HAL_Delay(1000);
-    int c = addition(3, 4);
-
+    HAL_Delay(wait_count);
+    // int c = addition(3, 4);
+    if(wait_count <= 5000)
+    {
+      wait_count+=2; 
+    }
+    else if(wait_count > 5000)
+    {
+      wait_count -= 2;
+    }
+    else if(wait_count == 0U)
+    {
+      wait_count = 2;
+    }
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
