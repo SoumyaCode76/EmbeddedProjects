@@ -48,6 +48,20 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
 )
 
 # Add include paths
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/Core/Inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/Drivers/STM32F1xx_HAL_Driver/Inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/Drivers/CMSIS/Include
+    ${CMAKE_CURRENT_SOURCE_DIR}/Drivers/CMSIS/Device/ST/STM32F1xx/Include
+    ${CMAKE_CURRENT_SOURCE_DIR}/test
+    ${CMAKE_CURRENT_SOURCE_DIR}/test/Unity
+)
+
+# Add test sources
+target_sources(${CMAKE_PROJECT_NAME} PRIVATE
+    test/test_uart.c
+    test/Unity/unity.c
+)
 
 # Add custom commands to generate .hex and .bin files
 add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD

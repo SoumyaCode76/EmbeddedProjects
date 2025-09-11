@@ -24,8 +24,12 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "Unity/unity.h"
 
 /* Private includes ----------------------------------------------------------*/
+/* Test function declarations */
+void test_uart_init_should_set_baudrate(void);
+void test_uart_transmit_should_return_ok(void);
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
@@ -97,6 +101,14 @@ int main(void)
   MX_GPIO_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
+  
+  /* Run unit tests */
+  printf("\r\n=== Starting UART Tests ===\r\n");
+  UNITY_BEGIN();
+  RUN_TEST(test_uart_init_should_set_baudrate);
+  RUN_TEST(test_uart_transmit_should_return_ok);
+  UNITY_END();
+  printf("=== UART Tests Complete ===\r\n\r\n");
 
   /* USER CODE END 2 */
 
@@ -104,10 +116,10 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    static uint8_t cnt = 0;
+    // static uint8_t cnt = 0;
     /* USER CODE END WHILE */
-    printf("Hello from UART Printf Example %d\r\n", cnt++);
-    HAL_Delay(100);
+    // printf("Hello from UART Printf Example %d\r\n", cnt++);
+    // HAL_Delay(100);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
