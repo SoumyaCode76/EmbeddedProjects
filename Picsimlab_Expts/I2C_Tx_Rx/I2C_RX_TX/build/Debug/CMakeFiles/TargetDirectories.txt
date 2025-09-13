@@ -1,0 +1,6 @@
+D:/Users/soumy/GitHub/Learn_embedded_software_dev/EmbeddedProjects/Picsimlab_Expts/I2C_Tx_Rx/I2C_RX_TX/build/Debug/CMakeFiles/I2C_RX_TX.dir
+D:/Users/soumy/GitHub/Learn_embedded_software_dev/EmbeddedProjects/Picsimlab_Expts/I2C_Tx_Rx/I2C_RX_TX/build/Debug/CMakeFiles/edit_cache.dir
+D:/Users/soumy/GitHub/Learn_embedded_software_dev/EmbeddedProjects/Picsimlab_Expts/I2C_Tx_Rx/I2C_RX_TX/build/Debug/CMakeFiles/rebuild_cache.dir
+D:/Users/soumy/GitHub/Learn_embedded_software_dev/EmbeddedProjects/Picsimlab_Expts/I2C_Tx_Rx/I2C_RX_TX/build/Debug/cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir
+D:/Users/soumy/GitHub/Learn_embedded_software_dev/EmbeddedProjects/Picsimlab_Expts/I2C_Tx_Rx/I2C_RX_TX/build/Debug/cmake/stm32cubemx/CMakeFiles/edit_cache.dir
+D:/Users/soumy/GitHub/Learn_embedded_software_dev/EmbeddedProjects/Picsimlab_Expts/I2C_Tx_Rx/I2C_RX_TX/build/Debug/cmake/stm32cubemx/CMakeFiles/rebuild_cache.dir
