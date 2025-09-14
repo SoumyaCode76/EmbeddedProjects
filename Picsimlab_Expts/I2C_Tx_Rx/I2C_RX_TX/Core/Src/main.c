@@ -48,7 +48,8 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+  bool writeComplete = false;
+  bool readComplete = false;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -100,7 +101,8 @@ int main(void)
   /* USER CODE BEGIN 2 */
   uint8_t data[] = {0x08, 0x55}; // Data byte to write to EEPROM
   uint16_t deviceAddress = 0x50;
-  if(HAL_I2C_Master_Transmit(&hi2c1, (deviceAddress << 1), data, sizeof(data), HAL_MAX_DELAY) != HAL_OK)
+
+  if(HAL_I2C_Master_Transmit_IT(&hi2c1, (deviceAddress << 1), data, sizeof(data)) != HAL_OK)
   {
     // Transmission Error
     printf("I2C Transmission Error\r\n");
@@ -108,26 +110,34 @@ int main(void)
   }
   else
   {
+    while(!writeComplete);
     printf("Data sent: 0x%02X to EEPROM at address 0x%02X\r\n", data[1], data[0]);
   }
   HAL_Delay(10); // Wait for EEPROM to complete the write operation
   /* Read back */
   uint8_t readData = 0;
   uint8_t readAddr = 0x08;
+  writeComplete = false;
   /* Send address */
-  if(HAL_I2C_Master_Transmit(&hi2c1, (deviceAddress << 1), &readAddr, sizeof(readAddr), 0xFFFF) != HAL_OK)
+  if(HAL_I2C_Master_Transmit_IT(&hi2c1, (deviceAddress << 1), &readAddr, sizeof(readAddr)) != HAL_OK)
   {
     printf("Master address write operation failed\r\n");
     Error_Handler();
   }
+  else
+  {
+    while(!writeComplete);
+    printf("Address 0x%02X sent to EEPROM for read\r\n", readAddr);
+  }
   HAL_Delay(100);
-  if(HAL_I2C_Master_Receive(&hi2c1, (deviceAddress << 1), &readData, sizeof(readData), 0xFFFF) != HAL_OK)
+  if(HAL_I2C_Master_Receive_IT(&hi2c1, (deviceAddress << 1), &readData, sizeof(readData)) != HAL_OK)
   {
     printf("Master read data operation failed\r\n");
     Error_Handler();
   }
   else
   {
+    while(!readComplete);
     printf("Data read: 0x%02X from EEPROM at address 0x%02X\r\n", readData, readAddr);
   }
   data[1] = 0xFF;
@@ -211,7 +221,28 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
+{
+  if(hi2c->Instance == I2C1) // Ensure it's the correct I2C instance
+  {
+    writeComplete = true; // Set the flag to indicate transmission is complete
+  }
+}
+void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c)
+{
+  if(hi2c->Instance == I2C1) // Ensure it's the correct I2C instance
+  {
+    readComplete = true; // Set the flag to indicate reception is complete
+  }
+}
+void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c)
+{
+  if(hi2c->Instance == I2C1) // Ensure it's the correct I2C instance
+  {
+    printf("I2C Error: 0x%lX\r\n", hi2c->ErrorCode);
+    Error_Handler(); // Handle the error appropriately
+  }
+}
 /* USER CODE END 4 */
 
 /**
