@@ -120,6 +120,37 @@ int main(void)
     printf("Master address write operation failed\r\n");
     Error_Handler();
   }
+  HAL_Delay(100);
+  if(HAL_I2C_Master_Receive(&hi2c1, (deviceAddress << 1), &readData, sizeof(readData), 0xFFFF) != HAL_OK)
+  {
+    printf("Master read data operation failed\r\n");
+    Error_Handler();
+  }
+  else
+  {
+    printf("Data read: 0x%02X from EEPROM at address 0x%02X\r\n", readData, readAddr);
+  }
+  data[1] = 0xFF;
+  if(HAL_I2C_Master_Transmit(&hi2c1, (deviceAddress << 1), data, sizeof(data), HAL_MAX_DELAY) != HAL_OK)
+  {
+    // Transmission Error
+    printf("I2C Transmission Error\r\n");
+    Error_Handler();
+  }
+  else
+  {
+    printf("Data sent: 0x%02X to EEPROM at address 0x%02X\r\n", data[1], data[0]);
+  }
+  HAL_Delay(10); // Wait for EEPROM to complete the write operation
+  /* Read back */
+  readData = 0;
+  readAddr = 0x08;
+  /* Send address */
+  if(HAL_I2C_Master_Transmit(&hi2c1, (deviceAddress << 1), &readAddr, sizeof(readAddr), 0xFFFF) != HAL_OK)
+  {
+    printf("Master address write operation failed\r\n");
+    Error_Handler();
+  }
   HAL_Delay(10);
   if(HAL_I2C_Master_Receive(&hi2c1, (deviceAddress << 1), &readData, sizeof(readData), 0xFFFF) != HAL_OK)
   {
