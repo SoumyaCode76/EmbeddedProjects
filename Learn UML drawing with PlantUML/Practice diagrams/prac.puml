@@ -1,0 +1,29 @@
+@startuml
+
+start
+:Read input file path;
+if (file exists?) then (yes)
+    :Open file;
+    if (lines exist?) then (yes)
+        while(more lines in file?) is (yes)
+            :Read line;
+            if (line contains "ERROR"?) then (yes)
+                :Log error line;
+                break;
+            else (no)
+                :Process line;
+            endif
+        endwhile (no)
+        :Close file;
+        :Log completion message;
+    else (no)
+        :Log no lines found error;
+        stop
+    endif
+    stop
+else (no)
+:Log file not found error;
+stop
+
+
+@enduml
