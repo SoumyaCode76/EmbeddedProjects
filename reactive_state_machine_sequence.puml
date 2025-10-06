@@ -1,0 +1,142 @@
+@startuml Reactive Round-Robin State Machine Embedded System
+
+!define LIGHTBLUE #E1F5FE
+!define LIGHTGREEN #E8F5E8
+!define LIGHTYELLOW #FFF8E1
+!define LIGHTPINK #FCE4EC
+
+title Reactive Round-Robin State Machine Embedded System Sequence
+
+actor "External Input" as ext
+participant "Hardware Interrupt\nController" as hic LIGHTPINK
+participant "System Timer\n(SysTick)" as timer LIGHTYELLOW
+participant "Scheduler\n(Round-Robin)" as scheduler LIGHTBLUE
+participant "State Machine\nTask 1" as sm1 LIGHTGREEN
+participant "State Machine\nTask 2" as sm2 LIGHTGREEN
+participant "State Machine\nTask 3" as sm3 LIGHTGREEN
+participant "HAL Driver\n(UART/I2C)" as hal LIGHTBLUE
+participant "Hardware\nPeripherals" as hw LIGHTPINK
+
+== System Initialization ==
+activate scheduler
+scheduler -> timer: Configure SysTick (e.g., 1ms)
+activate timer
+scheduler -> sm1: Initialize State Machine 1 (IDLE)
+activate sm1
+scheduler -> sm2: Initialize State Machine 2 (IDLE)
+activate sm2
+scheduler -> sm3: Initialize State Machine 3 (IDLE)
+activate sm3
+scheduler -> hal: Initialize HAL peripherals
+activate hal
+hal -> hw: Configure UART/I2C/GPIO
+activate hw
+
+== Round-Robin Execution Loop ==
+loop Main System Loop
+    
+    note over scheduler: Round-Robin Time Slice = 10ms
+    
+    == Time Slice 1: State Machine Task 1 ==
+    timer -> scheduler: SysTick Interrupt (10ms elapsed)
+    scheduler -> sm1: Execute Task 1
+    sm1 -> sm1: Process current state
+    
+    alt External Event Available
+        ext -> hic: External interrupt (GPIO/UART RX)
+        activate hic
+        hic -> sm1: Set event flag
+        note right of sm1: Reactive response\nto external event
+        sm1 -> sm1: Transition to new state
+        sm1 -> hal: Request peripheral operation
+        hal -> hw: Execute hardware operation
+        hw -> hal: Operation complete
+        hal -> sm1: Return result
+        hic -> ext: Acknowledge interrupt
+        deactivate hic
+    else No External Event
+        sm1 -> sm1: Continue current state processing
+    end
+    
+    sm1 -> scheduler: Yield (time slice complete)
+    
+    == Time Slice 2: State Machine Task 2 ==
+    timer -> scheduler: SysTick Interrupt (10ms elapsed)
+    scheduler -> sm2: Execute Task 2
+    sm2 -> sm2: Process current state
+    
+    alt Timer Event Triggered
+        sm2 -> sm2: Timer-based state transition
+        sm2 -> hal: Request I2C communication
+        hal -> hw: Send I2C data
+        hw -> hal: I2C ACK/NACK
+        hal -> sm2: Return I2C status
+    else Waiting for Timer
+        sm2 -> sm2: Remain in current state
+    end
+    
+    sm2 -> scheduler: Yield (time slice complete)
+    
+    == Time Slice 3: State Machine Task 3 ==
+    timer -> scheduler: SysTick Interrupt (10ms elapsed)
+    scheduler -> sm3: Execute Task 3
+    sm3 -> sm3: Process current state
+    
+    alt Data Processing State
+        sm3 -> sm3: Process sensor data
+        sm3 -> hal: Send processed data via UART
+        hal -> hw: UART transmit
+        hw -> hal: Transmission complete
+        hal -> sm3: UART TX complete
+        sm3 -> sm3: Transition to next state
+    else Idle State
+        sm3 -> sm3: Monitor for new data
+    end
+    
+    sm3 -> scheduler: Yield (time slice complete)
+    
+    == Inter-task Communication ==
+    note over sm1, sm3: Tasks can communicate via\nshared memory, queues, or flags
+    
+    alt Task 1 needs to signal Task 2
+        sm1 -> scheduler: Set inter-task flag
+        scheduler -> sm2: Deliver flag during next slice
+        sm2 -> sm2: React to flag (state transition)
+    end
+    
+end
+
+== Error Handling ==
+alt Hardware Error Detected
+    hw -> hal: Error condition
+    hal -> hic: Generate error interrupt
+    hic -> scheduler: High priority interrupt
+    scheduler -> sm1: Emergency error handling
+    sm1 -> sm1: Transition to ERROR state
+    sm1 -> hal: Execute error recovery
+    hal -> hw: Reset peripheral
+    hw -> hal: Reset complete
+    hal -> sm1: Recovery successful
+    sm1 -> sm1: Transition back to IDLE state
+end
+
+== Low Power Mode ==
+alt No Active Tasks
+    scheduler -> scheduler: Check all tasks idle
+    scheduler -> timer: Reduce tick frequency
+    scheduler -> hw: Enter low power mode
+    note over hw: CPU sleep until interrupt
+    ext -> hic: Wake-up interrupt
+    hic -> scheduler: Resume normal operation
+    scheduler -> timer: Restore normal tick frequency
+end
+
+deactivate hw
+deactivate hal
+deactivate sm3
+deactivate sm2
+deactivate sm1
+deactivate timer
+deactivate scheduler
+
+@enduml

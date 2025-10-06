@@ -1,0 +1,110 @@
+@startuml System Architecture Overview
+
+!define LIGHTBLUE #E1F5FE
+!define LIGHTGREEN #E8F5E8
+!define LIGHTYELLOW #FFF8E1
+!define LIGHTPINK #FCE4EC
+!define LIGHTGRAY #F5F5F5
+
+title Reactive Round-Robin State Machine System Architecture
+
+package "Hardware Layer" as HW {
+    [STM32 Microcontroller] as MCU LIGHTPINK
+    [UART Interface] as UART LIGHTPINK
+    [I2C Interface] as I2C LIGHTPINK
+    [GPIO Pins] as GPIO LIGHTPINK
+    [SysTick Timer] as TICK LIGHTPINK
+    [External Sensors] as SENSORS LIGHTGRAY
+    [External Devices] as DEVICES LIGHTGRAY
+}
+
+package "HAL Driver Layer" as HAL {
+    [UART Driver] as UART_DRV LIGHTBLUE
+    [I2C Driver] as I2C_DRV LIGHTBLUE
+    [GPIO Driver] as GPIO_DRV LIGHTBLUE
+    [Timer Driver] as TIMER_DRV LIGHTBLUE
+    [Interrupt Controller] as NVIC LIGHTBLUE
+}
+
+package "System Software Layer" as SYS {
+    [Round-Robin Scheduler] as SCHEDULER LIGHTYELLOW
+    [Interrupt Service Routines] as ISR LIGHTYELLOW
+    [System Clock Management] as CLOCK LIGHTYELLOW
+    [Power Management] as POWER LIGHTYELLOW
+}
+
+package "Application Layer" as APP {
+    [State Machine Task 1\n(Communication)] as SM1 LIGHTGREEN
+    [State Machine Task 2\n(Sensor Control)] as SM2 LIGHTGREEN
+    [State Machine Task 3\n(System Monitor)] as SM3 LIGHTGREEN
+    [Inter-Task Communication] as ITC LIGHTGREEN
+}
+
+' Hardware connections
+UART --> UART_DRV
+I2C --> I2C_DRV
+GPIO --> GPIO_DRV
+TICK --> TIMER_DRV
+MCU --> NVIC
+
+' External connections
+SENSORS --> I2C
+DEVICES --> UART
+DEVICES --> GPIO
+
+' HAL to System connections
+UART_DRV --> ISR
+I2C_DRV --> ISR
+GPIO_DRV --> ISR
+TIMER_DRV --> SCHEDULER
+NVIC --> ISR
+
+' System to Application connections
+SCHEDULER --> SM1
+SCHEDULER --> SM2
+SCHEDULER --> SM3
+ISR --> SM1 : External events
+ISR --> SM2 : Timer events
+ISR --> SM3 : System events
+
+' Inter-task communication
+SM1 <-> ITC
+SM2 <-> ITC
+SM3 <-> ITC
+
+' System management
+CLOCK --> SCHEDULER
+POWER --> SCHEDULER
+SCHEDULER --> CLOCK : Dynamic frequency
+SCHEDULER --> POWER : Sleep control
+
+note right of SCHEDULER
+  Time slice allocation:
+  • Task 1: 10ms
+  • Task 2: 10ms  
+  • Task 3: 10ms
+  • Total cycle: 30ms
+end note
+
+note bottom of SM1
+  Reactive to:
+  • UART interrupts
+  • GPIO changes
+  • External signals
+end note
+
+note bottom of SM2
+  Timer-driven:
+  • 100ms sensor sampling
+  • Periodic I2C reads
+  • Data validation
+end note
+
+note bottom of SM3
+  Continuous monitoring:
+  • System health
+  • Resource usage
+  • Error detection
+end note
+
+@enduml
