@@ -71,13 +71,12 @@ typedef enum
   CHANGE_LED_STATE = 0,
   WAIT_FOR_CHANGE
 }LED_Process_state_t;
-/* USER CODE END Private defines */
-
 typedef enum
 {
-  E_OK = 0U,
+  E_OK = 0,
   E_NOT_OK
 }ReturnType_t;
+/* USER CODE END Private defines */
 
 #ifdef __cplusplus
 }
