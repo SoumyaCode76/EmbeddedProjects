@@ -143,7 +143,6 @@ ReturnType_t SPI_Write(const uint8_t * WriteData, uint16_t NumberOfBytes)
 
     if(HAL_OK == err)
     {
-      printf("OK\n");
       return E_OK;
     }
     else
@@ -174,7 +173,6 @@ ReturnType_t SPI_Read(uint8_t * ReadData, uint16_t NumberOfBytes)
     }
     if(HAL_OK == err)
     {
-      printf("OK Read\n");
       return E_OK;
     }
     else

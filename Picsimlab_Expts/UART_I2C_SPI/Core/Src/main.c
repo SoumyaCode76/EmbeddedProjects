@@ -111,8 +111,21 @@ int main(void)
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET);
   SPI_Write(&test_data, sizeof(test_data));
   SPI_Read(&read_id, sizeof(read_id));
-  printf("ID: 0x%02X\n", read_id);
+  printf("[SPI Test] ID: 0x%02X\n", read_id);
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);  
+
+  /* Write data 0xAB to memory address 0x05 */
+  uint8_t write_buf[2] = {0x05, 0xAB};  /* First byte is address, second is data */
+  I2C_Write(0x50, write_buf, sizeof(write_buf));
+  HAL_Delay(10);  /* Wait for write to complete */
+
+  /* Read back from memory address 0x05 */
+  uint8_t mem_addr = 0x05;
+  uint8_t read_data = 0x00;
+  I2C_Write(0x50, &mem_addr, sizeof(mem_addr));  /* Set the memory address */
+  I2C_Read(0x50, &read_data, sizeof(read_data));  /* Read the data */
+  printf("[I2C Test] Memory at 0x05: 0x%02X\n", read_data);
+
   return 0;
   while (1)
   {

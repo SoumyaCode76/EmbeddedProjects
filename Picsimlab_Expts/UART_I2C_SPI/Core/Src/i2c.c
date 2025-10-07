@@ -112,30 +112,39 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* i2cHandle)
 /* USER CODE BEGIN 1 */
 ReturnType_t I2C_Write(uint16_t Addr, uint8_t * Wdata, uint16_t NoOfBytes)
 {
-  HAL_StatusTypeDef err = HAL_OK;
-  for(uint16_t i = 0; i < NoOfBytes; i++)
+  HAL_StatusTypeDef err;
+  const uint32_t timeout = 100; // 100ms timeout
+  
+  /* Left shift address by 1 bit as HAL expects 8-bit address format */
+  uint16_t dev_addr = (Addr << 1) & 0xFE;
+  
+  /* Send all bytes in a single transaction */
+  err = HAL_I2C_Master_Transmit(&hi2c2, dev_addr, Wdata, NoOfBytes, timeout);
+  if(err != HAL_OK)
   {
-    err = HAL_I2C_Master_Transmit(&hi2c2, Addr, Wdata, 1, HAL_MAX_DELAY);
-    if(err != HAL_OK)
-    {
-      printf("I2C Err: [%s][%d]\n", __func__, __LINE__);
-      return E_NOT_OK;
-    }
+    printf("I2C Write Err: Status=%d, Addr=0x%02X\n", err, Addr);
+    return E_NOT_OK;
   }
+  
   return E_OK;
 }
+
 ReturnType_t I2C_Read(uint16_t Addr, uint8_t * Rdata, uint16_t NoOfBytes)
 {
-  HAL_StatusTypeDef err = HAL_OK;
-  for(uint16_t i = 0; i < NoOfBytes; i++)
+  HAL_StatusTypeDef err;
+  const uint32_t timeout = 100; // 100ms timeout
+  
+  /* Left shift address by 1 bit and set LSB for read operation */
+  uint16_t dev_addr = (Addr << 1) | 0x01;
+  
+  /* Read all bytes in a single transaction */
+  err = HAL_I2C_Master_Receive(&hi2c2, dev_addr, Rdata, NoOfBytes, timeout);
+  if(err != HAL_OK)
   {
-    err = HAL_I2C_Master_Receive(&hi2c2, Addr, Rdata, 1, HAL_MAX_DELAY);
-    if(err != HAL_OK)
-    {
-      printf("I2C Err: [%s][%d]\n", __func__, __LINE__);
-      break;
-    }
+    printf("I2C Read Err: Status=%d, Addr=0x%02X\n", err, Addr);
+    return E_NOT_OK;
   }
+  
   return E_OK;
 }
 /* USER CODE END 1 */
