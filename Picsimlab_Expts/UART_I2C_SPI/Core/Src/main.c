@@ -55,6 +55,8 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 extern ReturnType_t SPI_Write(const uint8_t * WriteData, uint16_t NumberOfBytes);
 extern ReturnType_t SPI_Read(const uint8_t * ReadData, uint16_t NumberOfBytes);
+extern ReturnType_t I2C_Write(uint16_t Addr, uint8_t * Wdata, uint16_t NoOfBytes);
+extern ReturnType_t I2C_Read(uint16_t Addr, uint8_t * Rdata, uint16_t NoOfBytes);
 void glow_led(void);
 /* USER CODE END PFP */
 

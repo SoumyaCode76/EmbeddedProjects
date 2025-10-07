@@ -110,7 +110,7 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* i2cHandle)
 }
 
 /* USER CODE BEGIN 1 */
-ReturnType_t I2C_Write(uint16_t Addr, const uint8_t * Wdata, uint16_t NoOfBytes)
+ReturnType_t I2C_Write(uint16_t Addr, uint8_t * Wdata, uint16_t NoOfBytes)
 {
   HAL_StatusTypeDef err = HAL_OK;
   for(uint16_t i = 0; i < NoOfBytes; i++)
