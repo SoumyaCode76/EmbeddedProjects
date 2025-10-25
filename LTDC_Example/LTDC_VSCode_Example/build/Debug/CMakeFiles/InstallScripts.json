@@ -1,0 +1,8 @@
+{
+	"InstallScripts" : 
+	[
+		"D:/Users/soumy/GitHub/Learn_embedded_software_dev/EmbeddedProjects/LTDC_Example/LTDC_VSCode_Example/build/Debug/cmake_install.cmake",
+		"D:/Users/soumy/GitHub/Learn_embedded_software_dev/EmbeddedProjects/LTDC_Example/LTDC_VSCode_Example/build/Debug/cmake/stm32cubemx/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

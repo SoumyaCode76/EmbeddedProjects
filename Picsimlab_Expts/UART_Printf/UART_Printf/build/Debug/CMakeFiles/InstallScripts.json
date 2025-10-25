@@ -1,0 +1,8 @@
+{
+	"InstallScripts" : 
+	[
+		"D:/Users/soumy/GitHub/Learn_embedded_software_dev/EmbeddedProjects/Picsimlab_Expts/UART_Printf/UART_Printf/build/Debug/cmake_install.cmake",
+		"D:/Users/soumy/GitHub/Learn_embedded_software_dev/EmbeddedProjects/Picsimlab_Expts/UART_Printf/UART_Printf/build/Debug/cmake/stm32cubemx/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

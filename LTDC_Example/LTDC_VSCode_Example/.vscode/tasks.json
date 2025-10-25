@@ -1,0 +1,124 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Build",
+			"type": "shell",
+			"command": "cmake",
+			"args": [
+				"--build",
+				"build/Debug",
+				"--config",
+				"Debug",
+				"--parallel"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"detail": "Build the STM32 project using CMake",
+			"dependsOn": "Configure CMake"
+		},
+		{
+			"label": "Configure CMake",
+			"type": "shell",
+			"command": "cmake",
+			"args": [
+				"--preset",
+				"Debug"
+			],
+			"group": "build",
+			"problemMatcher": [],
+			"detail": "Configure CMake build system"
+		},
+		{
+			"label": "Clean",
+			"type": "shell",
+			"command": "cmake",
+			"args": [
+				"--build",
+				"build/Debug",
+				"--target",
+				"clean"
+			],
+			"group": "build",
+			"problemMatcher": [],
+			"detail": "Clean build artifacts"
+		},
+		{
+			"label": "Flash",
+			"type": "shell",
+			"command": "C:/openocd/xpack-openocd-0.12.0-3/bin/openocd.exe",
+			"args": [
+				"-f",
+				"interface/stlink.cfg",
+				"-f",
+				"target/stm32f4x.cfg",
+				"-c",
+				"program build/Debug/BaseLine_Project.elf verify reset exit"
+			],
+			"group": "build",
+			"problemMatcher": [],
+			"detail": "Flash the firmware to STM32 using OpenOCD",
+			"dependsOn": "Build"
+		},
+		{
+			"label": "Erase Flash",
+			"type": "shell",
+			"command": "C:/openocd/xpack-openocd-0.12.0-3/bin/openocd.exe",
+			"args": [
+				"-f",
+				"interface/stlink.cfg",
+				"-f",
+				"target/stm32f4x.cfg",
+				"-c",
+				"init",
+				"-c",
+				"reset halt",
+				"-c",
+				"flash erase_address 0x08000000 0x100000",
+				"-c",
+				"exit"
+			],
+			"group": "build",
+			"problemMatcher": [],
+			"detail": "Erase STM32 flash memory"
+		},
+		{
+			"label": "Reset and Resume Target",
+			"type": "shell",
+			"command": "C:/openocd/xpack-openocd-0.12.0-3/bin/openocd.exe",
+			"args": [
+				"-f",
+				"interface/stlink.cfg",
+				"-f",
+				"target/stm32f4x.cfg",
+				"-c",
+				"init; reset; resume; shutdown"
+			],
+			"group": "build",
+			"problemMatcher": [],
+			"detail": "Reset and resume STM32 target if stuck in HALT state"
+		},
+		{
+			"label": "Build and Run",
+			"type": "shell",
+			"command": "echo",
+			"args": ["Build and Run completed successfully"],
+			"dependsOrder": "sequence",
+			"dependsOn": [
+				"Build",
+				"Flash"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": false
+			},
+			"detail": "Build project and flash to STM32 (no debugging)",
+			"problemMatcher": []
+		}
+	]
+}
