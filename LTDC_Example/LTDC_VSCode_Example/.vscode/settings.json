@@ -1,0 +1,30 @@
+{
+    "cmake.cmakePath": "cube-cmake",
+    "cmake.configureArgs": [
+        "-DCMAKE_COMMAND=cube-cmake"
+    ],
+    "cmake.preferredGenerators": [
+        "Ninja"
+    ],
+    "files.associations": {
+        "usart.h": "c",
+        "stm32f4xx_hal.h": "c",
+        "main.h": "c",
+        "stm32f429i_discovery.h": "c",
+        "st_logo1.h": "c"
+    },
+    "stm32cube-ide-clangd.path": "cube",
+    "stm32cube-ide-clangd.arguments": [
+        "starm-clangd",
+        "--query-driver=${env:CUBE_BUNDLE_PATH}/gnu-tools-for-stm32/13.3.1+st.9/bin/arm-none-eabi-gcc.exe",
+        "--query-driver=${env:CUBE_BUNDLE_PATH}/gnu-tools-for-stm32/13.3.1+st.9/bin/arm-none-eabi-g++.exe"
+    ],
+    "git.ignoreLimitWarning": true,
+    "serial-monitor.defaultPort": "COM6",
+    "serial-monitor.defaultBaudRate": "115200",
+    "serial-monitor.defaultDataBits": "8",
+    "serial-monitor.defaultStopBits": "1",
+    "serial-monitor.defaultParity": "none",
+    "serial-monitor.autoConnect": false,
+    "serial-monitor.timestampFormat": "HH:mm:ss.fff"
+}
