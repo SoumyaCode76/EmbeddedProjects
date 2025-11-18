@@ -27,7 +27,7 @@
   ******************************************************************************
   */
 
-#include <stdint.h>
+#include "stm32f429disc_board.h"
 
 /* Symbols defined in the linker script */
 extern uint32_t _estack;
@@ -40,7 +40,7 @@ extern uint32_t _ebss;     /* end address for the .bss section */
 /* Function prototypes */
 extern void SystemInit(void);
 extern void __libc_init_array(void);
-extern int main(void);
+extern int no_main(void);
 
 void Reset_Handler(void);
 void Default_Handler(void);
@@ -147,6 +147,33 @@ void SAI1_IRQHandler(void) __attribute__((weak, alias("Default_Handler")));
 void LTDC_IRQHandler(void) __attribute__((weak, alias("Default_Handler")));
 void LTDC_ER_IRQHandler(void) __attribute__((weak, alias("Default_Handler")));
 void DMA2D_IRQHandler(void) __attribute__((weak, alias("Default_Handler")));
+
+
+// void Relocate_Vector_Table(void) __attribute__((naked, section(".svcrsvd")));
+
+// /* Custom function to relocate the Vector table location in flash */
+// void Relocate_Vector_Table(void)
+// {
+//     __asm volatile (
+//         /* First: Set the stack pointer to _estack */
+//         "ldr r0, =_estack           \n\t"   /* Load address of _estack into r0 */
+//         "mov sp, r0                 \n\t"   /* Set stack pointer (SP) to _estack */
+        
+//         /* Relocate vector table */
+//         "ldr r0, =g_pfnVectors      \n\t"   /* Load address of g_pfnVectors into r0 */
+//         "ldr r1, =0xE000ED08        \n\t"   /* Load SCB->VTOR address (0xE000ED08) into r1 */
+//         "str r0, [r1]               \n\t"   /* Store r0 (vector table address) to SCB->VTOR */
+        
+//         /* Jump to the actual Reset_Handler */
+//         "bl Reset_Handler         \n\t"   /* Branch to Reset_Handler */
+        
+//         /* Should never return, but just in case */
+//         "b .                        \n\t"   /* Infinite loop */
+//         :                                   /* No output operands */
+//         :                                   /* No input operands */
+//         : "r0", "r1"                        /* Clobbered registers */
+//     );
+// }
 
 /* Vector Table */
 const uint32_t g_pfnVectors[] __attribute__((section(".isr_vector"))) = {
@@ -308,7 +335,7 @@ void Reset_Handler(void)
     __libc_init_array();
     
     /* Call the application's entry point */
-    main();
+    no_main();
     
     /* Infinite loop if main returns */
     while (1)
