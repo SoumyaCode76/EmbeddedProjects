@@ -55,13 +55,15 @@ ENTRY(Reset_Handler)
 /* Specify the memory areas */
 MEMORY
 {
-RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 192K
+RSVD_RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 1K
+RAM (xrw)      : ORIGIN = ORIGIN(RSVD_RAM) + LENGTH(RSVD_RAM), LENGTH = 192K - LENGTH(RSVD_RAM)
 CCMRAM (xrw)      : ORIGIN = 0x10000000, LENGTH = 64K
-FLASH (rx)      : ORIGIN = 0x8000000, LENGTH = 2048K
+FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 2048K
 }
 
 /* Highest address of the user mode stack */
 _estack = ORIGIN(RAM) + LENGTH(RAM);    /* end of RAM */
+_ramstart = ORIGIN(RAM);                 /* start of RAM */
 /* Generate a link error if heap and stack don't fit into RAM */
 _Min_Heap_Size = 0x200;      /* required amount of heap  */
 _Min_Stack_Size = 0x400; /* required amount of stack */
@@ -73,6 +75,7 @@ SECTIONS
   .isr_vector :
   {
     . = ALIGN(4);
+    _sisr_vector = .; /* define a global symbol at irom start */
     KEEP(*(.isr_vector)) /* Startup code */
     . = ALIGN(4);
   } >FLASH

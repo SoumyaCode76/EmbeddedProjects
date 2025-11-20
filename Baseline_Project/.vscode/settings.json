@@ -9,7 +9,8 @@
     "files.associations": {
         "usart.h": "c",
         "stm32f4xx_hal.h": "c",
-        "main.h": "c"
+        "main.h": "c",
+        "stm32f429disc_board.h": "c"
     },
     "stm32cube-ide-clangd.path": "cube",
     "stm32cube-ide-clangd.arguments": [
