@@ -37,6 +37,8 @@ extern uint32_t _edata;    /* end address for the .data section */
 extern uint32_t _sbss;     /* start address for the .bss section */
 extern uint32_t _ebss;     /* end address for the .bss section */
 
+extern uint32_t _ramstart; /* start address for RAM */
+
 /* Function prototypes */
 extern void SystemInit(void);
 extern void __libc_init_array(void);
@@ -330,10 +332,20 @@ void Reset_Handler(void)
     {
         *pDest++ = 0;
     }
+    /* Zero fill the stack portion */
+    pDest = (uint32_t*)&_estack;
+    while (pDest >= (uint32_t*)&_ramstart)
+    {
+        *pDest-- = 0;
+    }
     
+    /* Retrieve retained data */
+    
+
     /* Call static constructors */
     __libc_init_array();
-    
+    /* Initialize the UART peripheral */
+
     /* Call the application's entry point */
     no_main();
     
