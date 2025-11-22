@@ -1,0 +1,941 @@
+<!DOCTYPE html []>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="author" content="MarkdownViewer++" />
+    <title>OpenOCD_ARM_GDB_Cheatsheet.md</title>
+    <style type="text/css">
+            
+/* Avoid page breaks inside the most common attributes, especially for exports (i.e. PDF) */
+td, h1, h2, h3, h4, h5, p, ul, ol, li {
+    page-break-inside: avoid; 
+}
+
+        </style>
+  </head>
+  <body>
+    <h1 id="openocd-arm-gdb-cheatsheet-for-arm-embedded-development">🔧 OpenOCD &amp; ARM GDB Cheatsheet for ARM Embedded Development</h1>
+    <h2 id="table-of-contents">📚 <strong>Table of Contents</strong></h2>
+    <ol>
+      <li>
+        <p>📋 Quick Reference Card</p>
+        <ul>
+          <li>Essential Tools Setup</li>
+        </ul>
+      </li>
+      <li>
+        <p>🚀 Quick Build → Flash → Debug Workflow</p>
+        <ul>
+          <li>
+            <ol>
+              <li>Build (Generic ARM Project)</li>
+            </ol>
+          </li>
+          <li>
+            <ol start="2">
+              <li>Flash (One-liner)</li>
+            </ol>
+          </li>
+          <li>
+            <ol start="3">
+              <li>Debug (Launch)</li>
+            </ol>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <p>🎯 OpenOCD Command Reference</p>
+        <ul>
+          <li>Hardware Interface Files</li>
+          <li>Target Configuration Files</li>
+          <li>Common OpenOCD Commands</li>
+        </ul>
+      </li>
+      <li>
+        <p>🎮 ARM GDB Command Cheatsheet</p>
+        <ul>
+          <li>Connection &amp; Basic Control</li>
+          <li>Breakpoints &amp; Stepping</li>
+          <li>Memory &amp; Registers</li>
+          <li>Variables &amp; Watchpoints</li>
+        </ul>
+      </li>
+      <li>
+        <p>🔥 Flash &amp; Debug Using Monitor Commands</p>
+        <ul>
+          <li>Complete Flash Sequence</li>
+          <li>Step-by-Step Flash Commands</li>
+          <li>Debug Session Commands</li>
+        </ul>
+      </li>
+      <li>
+        <p>⚡ Power User Commands</p>
+        <ul>
+          <li>Advanced Monitor Commands</li>
+          <li>Useful GDB Scripts</li>
+          <li>OpenOCD Telnet Interface</li>
+        </ul>
+      </li>
+      <li>
+        <p>🎯 Target-Specific Examples</p>
+        <ul>
+          <li>STM32F4 Discovery</li>
+          <li>Infineon CYT2CL7BAAQ (TRAVEO™ T2G Cluster)</li>
+          <li>CYT2CL7BAAQ Flash Programming</li>
+          <li>CYT2CL7BAAQ Memory Map</li>
+          <li>Generic Cortex-M Setup</li>
+        </ul>
+      </li>
+      <li>
+        <p>🔌 Zephyr RTOS Support for CYT2CL7BAAQ</p>
+        <ul>
+          <li>Board Configuration</li>
+          <li>West Commands for CYT2CL7BAAQ</li>
+          <li>Custom OpenOCD Runner Configuration</li>
+          <li>OpenOCD Configuration for Zephyr</li>
+        </ul>
+      </li>
+      <li>
+        <p>📚 Essential File Structure</p>
+        <ul>
+          <li>Bare Metal Project</li>
+          <li>Zephyr RTOS Project</li>
+        </ul>
+      </li>
+      <li>
+        <p>🛠️ Common Issues &amp; Solutions</p>
+        <ul>
+          <li>Connection Issues</li>
+          <li>Flash Programming Issues</li>
+          <li>Debugging Issues</li>
+        </ul>
+      </li>
+      <li>
+        <p>📖 Quick Command Reference Table</p>
+      </li>
+      <li>
+        <p>🎊 Pro Tips</p>
+      </li>
+    </ol>
+    <hr />
+    <h2 id="quick-reference-card">📋 <strong>Quick Reference Card</strong></h2>
+    <h3 id="essential-tools-setup">
+      <strong>Essential Tools Setup:</strong>
+    </h3>
+    <ul>
+      <li>
+        <strong>OpenOCD</strong>: Hardware abstraction for debugging/flashing</li>
+      <li>
+        <strong>arm-none-eabi-gdb</strong>: Cross-platform GDB for ARM Cortex</li>
+      <li>
+        <strong>arm-none-eabi-gcc</strong>: ARM cross-compiler toolchain</li>
+    </ul>
+    <hr />
+    <h2 id="quick-build-flash-debug-workflow">🚀 <strong>Quick Build → Flash → Debug Workflow</strong></h2>
+    <h3 id="build-generic-arm-project">
+      <strong>1. Build (Generic ARM Project)</strong>
+    </h3>
+    <pre>
+      <code class="language-bash"># Using CMake + Ninja
+mkdir build &amp;&amp; cd build
+cmake -DCMAKE_TOOLCHAIN_FILE=arm-none-eabi.cmake ..
+ninja
+
+# Using Makefile
+make clean &amp;&amp; make all
+
+# Using arm-none-eabi-gcc directly
+arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -O2 -g \
+  -T linker_script.ld src/*.c -o firmware.elf
+</code>
+    </pre>
+    <h3 id="flash-one-liner">
+      <strong>2. Flash (One-liner)</strong>
+    </h3>
+    <pre>
+      <code class="language-bash"># Direct flash with OpenOCD
+openocd -f interface/stlink.cfg -f target/stm32f4x.cfg \
+  -c "program firmware.elf verify reset exit"
+</code>
+    </pre>
+    <h3 id="debug-launch">
+      <strong>3. Debug (Launch)</strong>
+    </h3>
+    <pre>
+      <code class="language-bash"># Terminal 1: Start OpenOCD server
+openocd -f interface/stlink.cfg -f target/stm32f4x.cfg
+
+# Terminal 2: Connect GDB
+arm-none-eabi-gdb firmware.elf -ex "target remote :3333"
+</code>
+    </pre>
+    <hr />
+    <h2 id="openocd-command-reference">🎯 <strong>OpenOCD Command Reference</strong></h2>
+    <h3 id="hardware-interface-files">
+      <strong>Hardware Interface Files:</strong>
+    </h3>
+    <pre>
+      <code class="language-bash"># ST-Link (STM32 Discovery/Nucleo boards)
+-f interface/stlink.cfg
+
+# J-Link
+-f interface/jlink.cfg
+
+# CMSIS-DAP
+-f interface/cmsis-dap.cfg
+
+# Black Magic Probe
+-f interface/bmp.cfg
+</code>
+    </pre>
+    <h3 id="target-configuration-files">
+      <strong>Target Configuration Files:</strong>
+    </h3>
+    <pre>
+      <code class="language-bash"># STM32F4 series
+-f target/stm32f4x.cfg
+
+# STM32F1 series  
+-f target/stm32f1x.cfg
+
+# STM32L4 series
+-f target/stm32l4x.cfg
+
+# Generic Cortex-M4
+-f target/stm32f4x.cfg
+
+# nRF52 (Nordic)
+-f target/nrf52.cfg
+</code>
+    </pre>
+    <h3 id="common-openocd-commands">
+      <strong>Common OpenOCD Commands:</strong>
+    </h3>
+    <pre>
+      <code class="language-bash"># Start OpenOCD with config
+openocd -f interface/stlink.cfg -f target/stm32f4x.cfg
+
+# One-shot programming
+openocd -f interface/stlink.cfg -f target/stm32f4x.cfg \
+  -c "program firmware.elf verify reset exit"
+
+# Custom script execution
+openocd -f interface/stlink.cfg -f target/stm32f4x.cfg \
+  -c "init; reset halt; flash write_image erase firmware.bin 0x08000000; reset run; exit"
+</code>
+    </pre>
+    <hr />
+    <h2 id="arm-gdb-command-cheatsheet">🎮 <strong>ARM GDB Command Cheatsheet</strong></h2>
+    <h3 id="connection-basic-control">
+      <strong>Connection &amp; Basic Control:</strong>
+    </h3>
+    <pre>
+      <code class="language-gdb"># Connect to OpenOCD
+target remote localhost:3333
+# or
+target extended-remote localhost:3333
+
+# Load program
+load
+# or
+load firmware.elf
+
+# Reset target
+monitor reset halt
+monitor reset run
+
+# Continue execution
+continue
+c
+
+# Halt execution
+monitor halt
+# or Ctrl+C
+</code>
+    </pre>
+    <h3 id="breakpoints-stepping">
+      <strong>Breakpoints &amp; Stepping:</strong>
+    </h3>
+    <pre>
+      <code class="language-gdb"># Set breakpoints
+break main
+break *0x08001234
+break filename.c:42
+
+# List/delete breakpoints
+info breakpoints
+delete 1
+clear main
+
+# Stepping
+step        # Step into functions
+next        # Step over functions  
+stepi       # Single instruction step
+nexti       # Next instruction
+finish      # Step out of function
+</code>
+    </pre>
+    <h3 id="memory-registers">
+      <strong>Memory &amp; Registers:</strong>
+    </h3>
+    <pre>
+      <code class="language-gdb"># View registers
+info registers
+info registers all
+print $r0
+print $pc
+print $sp
+
+# Memory examination
+x/10w 0x20000000    # 10 words at address
+x/10b 0x08000000    # 10 bytes at address
+x/10i $pc           # 10 instructions at PC
+
+# Memory modification
+set *(int*)0x20000000 = 0x12345678
+set $r0 = 0x1000
+</code>
+    </pre>
+    <h3 id="variables-watchpoints">
+      <strong>Variables &amp; Watchpoints:</strong>
+    </h3>
+    <pre>
+      <code class="language-gdb"># Print variables
+print variable_name
+print *pointer
+print array[5]
+
+# Set watchpoints
+watch variable_name
+watch *(int*)0x20000000
+
+# Display (auto-print on stop)
+display variable_name
+undisplay 1
+</code>
+    </pre>
+    <hr />
+    <h2 id="flash-debug-using-monitor-commands">🔥 <strong>Flash &amp; Debug Using Monitor Commands</strong></h2>
+    <h3 id="complete-flash-sequence">
+      <strong>Complete Flash Sequence:</strong>
+    </h3>
+    <pre>
+      <code class="language-gdb"># 1. Connect to target
+target remote localhost:3333
+
+# 2. Halt and prepare
+monitor reset halt
+
+# 3. Unlock flash (if needed)
+monitor stm32f4x unlock 0
+
+# 4. Erase flash
+monitor flash erase_sector 0 0 last
+# or specific sectors
+monitor flash erase_sector 0 0 7
+
+# 5. Program flash
+monitor flash write_image erase firmware.bin 0x08000000
+# or
+monitor program firmware.elf verify
+
+# 6. Verify programming  
+monitor verify_image firmware.bin 0x08000000
+
+# 7. Reset and run
+monitor reset run
+</code>
+    </pre>
+    <h3 id="step-by-step-flash-commands">
+      <strong>Step-by-Step Flash Commands:</strong>
+    </h3>
+    <pre>
+      <code class="language-gdb"># Method 1: Automatic (recommended)
+monitor program firmware.elf verify reset
+
+# Method 2: Manual control
+monitor halt
+monitor flash erase_address 0x08000000 0x10000  # Erase 64KB
+monitor flash write_image firmware.bin 0x08000000
+monitor verify_image firmware.bin 0x08000000
+monitor reset run
+
+# Method 3: Sector-specific
+monitor halt
+monitor flash info 0                 # Show flash layout
+monitor flash erase_sector 0 0 4     # Erase sectors 0-4
+monitor flash write_image erase firmware.elf
+monitor reset run
+</code>
+    </pre>
+    <h3 id="debug-session-commands">
+      <strong>Debug Session Commands:</strong>
+    </h3>
+    <pre>
+      <code class="language-gdb"># Start debug session
+arm-none-eabi-gdb firmware.elf
+target remote :3333
+
+# Load and prepare
+load
+monitor reset halt
+
+# Set breakpoints for your blinky code
+break main
+break main.c:37        # LED toggle line
+break gpio_pin_toggle_dt
+
+# Start debugging
+continue
+
+# When halted, examine state
+print led_state
+print ret
+print led
+info registers
+
+# Memory inspection
+x/10w $sp              # Stack
+x/10w 0x20000000       # RAM start  
+x/10i $pc              # Current instructions
+
+# GPIO register inspection (STM32F4 example)
+x/w 0x40020C00         # GPIOG_MODER
+x/w 0x40020C14         # GPIOG_ODR (output data)
+
+# Continue debugging
+step
+next
+continue
+</code>
+    </pre>
+    <hr />
+    <h2 id="power-user-commands">⚡ <strong>Power User Commands</strong></h2>
+    <h3 id="advanced-monitor-commands">
+      <strong>Advanced Monitor Commands:</strong>
+    </h3>
+    <pre>
+      <code class="language-gdb"># Flash operations
+monitor flash info 0
+monitor flash list
+monitor flash banks
+
+# Memory operations
+monitor mdw 0x08000000 10      # Read 10 words
+monitor mdb 0x20000000 256     # Read 256 bytes
+monitor mww 0x20000000 0x1234  # Write word
+
+# Target control
+monitor reg                    # Show all registers
+monitor reg pc                 # Show PC register
+monitor reg r0 0x1000         # Set R0 register
+
+# Debug features
+monitor arm semihosting enable
+monitor tpiu config internal - uart off 2000000
+</code>
+    </pre>
+    <h3 id="useful-gdb-scripts">
+      <strong>Useful GDB Scripts:</strong>
+    </h3>
+    <pre>
+      <code class="language-gdb"># Auto-load and start debugging
+define flash_and_debug
+  monitor program firmware.elf verify reset
+  load
+  break main
+  continue
+end
+
+# Reset and restart
+define restart
+  monitor reset halt
+  load
+  continue
+end
+
+# Memory dump
+define memdump
+  dump binary memory dump.bin 0x08000000 0x08010000
+end
+</code>
+    </pre>
+    <h3 id="openocd-telnet-interface">
+      <strong>OpenOCD Telnet Interface:</strong>
+    </h3>
+    <pre>
+      <code class="language-bash"># Connect to OpenOCD telnet (port 4444)
+telnet localhost 4444
+
+# Direct commands (no 'monitor' prefix needed)
+&gt; halt
+&gt; flash info 0  
+&gt; reset run
+&gt; shutdown
+</code>
+    </pre>
+    <hr />
+    <h2 id="target-specific-examples">🎯 <strong>Target-Specific Examples</strong></h2>
+    <h3 id="stm32f4-discovery">
+      <strong>STM32F4 Discovery:</strong>
+    </h3>
+    <pre>
+      <code class="language-bash"># OpenOCD startup
+openocd -f interface/stlink.cfg -f target/stm32f4x.cfg
+
+# GDB connection
+arm-none-eabi-gdb firmware.elf
+(gdb) target remote :3333
+(gdb) monitor program firmware.elf verify reset
+(gdb) break main
+(gdb) continue
+</code>
+    </pre>
+    <h3 id="infineon-cyt2cl7baaq-traveotm-t2g-cluster">
+      <strong>Infineon CYT2CL7BAAQ (TRAVEO™ T2G Cluster):</strong>
+    </h3>
+    <pre>
+      <code class="language-bash"># OpenOCD startup - Infineon TRAVEO T2G with dual Cortex-M7 cores
+openocd -f interface/kitprog3.cfg -f target/psoc6.cfg -c "set CHIPNAME cyp" -c "set WORKAREASIZE 0x8000"
+
+# Alternative with JLink (if using Segger probe)
+openocd -f interface/jlink.cfg -f target/psoc6.cfg -c "adapter speed 2000"
+
+# Specific target configuration for CYT2CL7BAAQ
+# Create custom config file: cyp2cl7.cfg
+echo '
+source [find target/psoc6.cfg]
+set CHIPNAME cyp2cl7baaq
+set WORKAREASIZE 0x8000
+adapter speed 2000
+
+# Dual Cortex-M7 configuration
+set _TARGETNAME_0 $_CHIPNAME.cm7_0  
+set _TARGETNAME_1 $_CHIPNAME.cm7_1
+
+# CM7_0 (Primary core)
+target create $_TARGETNAME_0 cortex_m -endian little -dap $_CHIPNAME.dap -ap-num 1 -coreid 0
+$_TARGETNAME_0 configure -work-area-phys 0x08000000 -work-area-size $_WORKAREASIZE
+
+# CM7_1 (Secondary core) 
+target create $_TARGETNAME_1 cortex_m -endian little -dap $_CHIPNAME.dap -ap-num 2 -coreid 1
+$_TARGETNAME_1 configure -work-area-phys 0x08000000 -work-area-size $_WORKAREASIZE
+
+# Flash configuration for CYT2CL7BAAQ (8MB Flash)
+flash bank $_CHIPNAME.flash_cm7_0 psoc6 0x10000000 0x800000 0 0 $_TARGETNAME_0
+flash bank $_CHIPNAME.flash_cm7_1 psoc6 0x10400000 0x400000 0 0 $_TARGETNAME_1
+
+targets $_TARGETNAME_0
+' &gt; cyp2cl7.cfg
+
+# Launch with custom config
+openocd -f interface/kitprog3.cfg -f cyp2cl7.cfg
+
+# GDB connection (Primary CM7 core)
+arm-none-eabi-gdb firmware.elf
+(gdb) target remote :3333
+(gdb) monitor psoc6 reset_halt
+(gdb) load
+(gdb) break main
+(gdb) continue
+
+# For dual-core debugging (connect to secondary core on port 3334)
+arm-none-eabi-gdb firmware_cm7_1.elf
+(gdb) target remote :3334
+</code>
+    </pre>
+    <h3 id="cyt2cl7baaq-flash-programming">
+      <strong>CYT2CL7BAAQ Flash Programming:</strong>
+    </h3>
+    <pre>
+      <code class="language-bash"># Flash CM7_0 (Primary core)
+(gdb) monitor halt
+(gdb) monitor flash erase_address 0x10000000 0x100000  # Erase 1MB
+(gdb) monitor flash write_image erase firmware_cm7_0.hex
+(gdb) monitor verify_image firmware_cm7_0.hex 0x10000000
+
+# Flash CM7_1 (Secondary core) 
+(gdb) monitor halt
+(gdb) monitor flash erase_address 0x10400000 0x80000   # Erase 512KB  
+(gdb) monitor flash write_image erase firmware_cm7_1.hex 0x10400000
+(gdb) monitor verify_image firmware_cm7_1.hex 0x10400000
+
+# Reset both cores
+(gdb) monitor psoc6 reset_halt
+(gdb) monitor psoc6 reset_run
+</code>
+    </pre>
+    <h3 id="cyt2cl7baaq-memory-map">
+      <strong>CYT2CL7BAAQ Memory Map:</strong>
+    </h3>
+    <pre>
+      <code>Flash Memory:
+- CM7_0 Code Flash: 0x10000000 - 0x107FFFFF (8MB)
+- CM7_1 Code Flash: 0x10400000 - 0x107FFFFF (4MB shared)
+- Work Flash: 0x14000000 - 0x14007FFF (32KB)
+
+SRAM Memory:
+- CM7_0 SRAM: 0x28000000 - 0x2807FFFF (512KB)
+- CM7_1 SRAM: 0x28080000 - 0x280BFFFF (256KB)
+- Shared SRAM: 0x280C0000 - 0x280FFFFF (256KB)
+
+Peripherals:
+- CM7_0 Peripherals: 0x40000000 - 0x4FFFFFFF
+- CM7_1 Peripherals: 0x42000000 - 0x4FFFFFFF
+</code>
+    </pre>
+    <h3 id="generic-cortex-m-setup">
+      <strong>Generic Cortex-M Setup:</strong>
+    </h3>
+    <pre>
+      <code class="language-bash"># For any Cortex-M with SWD
+openocd -c "interface stlink; transport select hla_swd; set CHIPNAME stm32f4x; source [find target/stm32f4x.cfg]"
+</code>
+    </pre>
+    <hr />
+    <h2 id="zephyr-rtos-support-for-cyt2cl7baaq">🔌 <strong>Zephyr RTOS Support for CYT2CL7BAAQ</strong></h2>
+    <h3 id="board-configuration">
+      <strong>Board Configuration:</strong>
+    </h3>
+    <pre>
+      <code class="language-yaml"># In your Zephyr project: boards/arm/cyp2cl7baaq/cyp2cl7baaq.dts
+/dts-v1/;
+
+/ {
+    model = "Infineon CYT2CL7BAAQ TRAVEO T2G Cluster";
+    compatible = "infineon,cyp2cl7baaq";
+    
+    chosen {
+        zephyr,console = &amp;uart0;
+        zephyr,shell-uart = &amp;uart0;
+        zephyr,flash = &amp;flash0;
+        zephyr,sram = &amp;sram0;
+    };
+    
+    cpus {
+        cpu@0 {
+            device_type = "cpu";
+            compatible = "arm,cortex-m7";
+        };
+        cpu@1 {
+            device_type = "cpu"; 
+            compatible = "arm,cortex-m7";
+        };
+    };
+    
+    flash0: flash@10000000 {
+        compatible = "soc-nv-flash";
+        reg = &lt;0x10000000 DT_SIZE_M(8)&gt;;
+    };
+    
+    sram0: memory@28000000 {
+        compatible = "mmio-sram";
+        reg = &lt;0x28000000 DT_SIZE_K(512)&gt;;
+    };
+};
+</code>
+    </pre>
+    <h3 id="west-commands-for-cyt2cl7baaq">
+      <strong>West Commands for CYT2CL7BAAQ:</strong>
+    </h3>
+    <pre>
+      <code class="language-bash"># Build for CYT2CL7BAAQ
+west build -p always -b cyp2cl7baaq samples/basic/blinky
+
+# Flash using OpenOCD
+west flash --runner openocd
+
+# Debug with west
+west debug --runner openocd
+
+# Debug server (background)
+west debugserver --runner openocd
+</code>
+    </pre>
+    <h3 id="custom-openocd-runner-configuration">
+      <strong>Custom OpenOCD Runner Configuration:</strong>
+    </h3>
+    <pre>
+      <code class="language-yaml"># In your project: boards/arm/cyp2cl7baaq/board.cmake
+board_runner_args(openocd --config=${BOARD_DIR}/support/openocd.cfg)
+
+include(${ZEPHYR_BASE}/boards/common/openocd.board.cmake)
+</code>
+    </pre>
+    <h3 id="openocd-configuration-for-zephyr">
+      <strong>OpenOCD Configuration for Zephyr:</strong>
+    </h3>
+    <pre>
+      <code class="language-tcl"># boards/arm/cyp2cl7baaq/support/openocd.cfg
+source [find interface/kitprog3.cfg]
+
+transport select swd
+adapter speed 2000
+
+source [find target/psoc6.cfg]
+
+# Override for CYT2CL7BAAQ specifics
+set CHIPNAME cyp2cl7baaq
+set WORKAREASIZE 0x8000
+
+# Zephyr-specific flash configuration
+$_TARGETNAME configure -event reset-init {
+    # Configure clocks for flash programming
+    mww 0x40260200 0x01  # Enable HFCLK
+    mww 0x40200008 0x00  # Configure flash wait states
+}
+
+# Flash bank for Zephyr
+flash bank zephyr.flash psoc6 0x10000000 0x800000 0 0 $_TARGETNAME
+</code>
+    </pre>
+    <hr />
+    <h2 id="essential-file-structure">📚 <strong>Essential File Structure</strong></h2>
+    <h3 id="bare-metal-project">
+      <strong>Bare Metal Project:</strong>
+    </h3>
+    <pre>
+      <code>project/
+├── src/
+│   ├── main.c              # Your blinky code
+│   └── startup.s           # Startup assembly
+├── include/
+├── linker_script.ld        # Memory layout
+├── Makefile               # Build rules
+└── openocd.cfg           # OpenOCD config
+</code>
+    </pre>
+    <h3 id="zephyr-rtos-project">
+      <strong>Zephyr RTOS Project:</strong>
+    </h3>
+    <pre>
+      <code>zephyr_project/
+├── boards/
+│   └── arm/
+│       └── cyp2cl7baaq/    # Board definition
+├── src/
+│   └── main.c              # Application code
+├── prj.conf               # Kernel config
+├── CMakeLists.txt         # Build system
+└── .vscode/
+    ├── launch.json        # Debug configs
+    └── tasks.json         # Build tasks
+</code>
+    </pre>
+    <p>
+      <strong>Sample openocd.cfg:</strong>
+    </p>
+    <pre>
+      <code class="language-tcl">source [find interface/stlink.cfg]
+source [find target/stm32f4x.cfg]
+adapter speed 2000
+</code>
+    </pre>
+    <hr />
+    <h2 id="common-issues-solutions">🛠️ <strong>Common Issues &amp; Solutions</strong></h2>
+    <h3 id="connection-issues">
+      <strong>Connection Issues:</strong>
+    </h3>
+    <pre>
+      <code class="language-bash"># Check if OpenOCD can detect your probe
+openocd -f interface/stlink.cfg -c "init; exit"
+
+# Reset USB connection
+# Unplug and replug ST-Link USB
+
+# Check permissions (Linux/macOS)
+sudo openocd -f interface/stlink.cfg -f target/stm32f4x.cfg
+</code>
+    </pre>
+    <h3 id="flash-programming-issues">
+      <strong>Flash Programming Issues:</strong>
+    </h3>
+    <pre>
+      <code class="language-gdb"># If flash is protected
+monitor stm32f4x unlock 0
+monitor stm32f4x mass_erase 0
+
+# If programming fails
+monitor reset halt
+monitor flash erase_sector 0 0 last
+monitor program firmware.elf verify reset
+</code>
+    </pre>
+    <h3 id="debugging-issues">
+      <strong>Debugging Issues:</strong>
+    </h3>
+    <pre>
+      <code class="language-gdb"># If breakpoints don't work
+monitor reset halt
+load
+break main
+continue
+
+# If symbols are missing
+file firmware.elf
+symbol-file firmware.elf
+
+# If execution seems stuck
+monitor halt
+info registers
+x/10i $pc
+</code>
+    </pre>
+    <hr />
+    <h2 id="quick-command-reference-table">📖 <strong>Quick Command Reference Table</strong></h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Operation</th>
+          <th>GDB Command</th>
+          <th>Monitor Command</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <strong>Connect</strong>
+          </td>
+          <td>
+            <code>target remote :3333</code>
+          </td>
+          <td>-</td>
+          <td>Connect to OpenOCD</td>
+        </tr>
+        <tr>
+          <td>
+            <strong>Load</strong>
+          </td>
+          <td>
+            <code>load</code>
+          </td>
+          <td>-</td>
+          <td>Load ELF to target</td>
+        </tr>
+        <tr>
+          <td>
+            <strong>Flash</strong>
+          </td>
+          <td>-</td>
+          <td>
+            <code>program firmware.elf verify reset</code>
+          </td>
+          <td>Flash ELF file</td>
+        </tr>
+        <tr>
+          <td>
+            <strong>Halt</strong>
+          </td>
+          <td>
+            <code>Ctrl+C</code>
+          </td>
+          <td>
+            <code>halt</code>
+          </td>
+          <td>Stop execution</td>
+        </tr>
+        <tr>
+          <td>
+            <strong>Reset</strong>
+          </td>
+          <td>-</td>
+          <td>
+            <code>reset halt</code>
+          </td>
+          <td>Reset and halt</td>
+        </tr>
+        <tr>
+          <td>
+            <strong>Resume</strong>
+          </td>
+          <td>
+            <code>continue</code>
+          </td>
+          <td>
+            <code>resume</code>
+          </td>
+          <td>Continue execution</td>
+        </tr>
+        <tr>
+          <td>
+            <strong>Breakpoint</strong>
+          </td>
+          <td>
+            <code>break main</code>
+          </td>
+          <td>-</td>
+          <td>Set breakpoint</td>
+        </tr>
+        <tr>
+          <td>
+            <strong>Step</strong>
+          </td>
+          <td>
+            <code>step</code> / <code>next</code></td>
+          <td>-</td>
+          <td>Single step</td>
+        </tr>
+        <tr>
+          <td>
+            <strong>Registers</strong>
+          </td>
+          <td>
+            <code>info registers</code>
+          </td>
+          <td>
+            <code>reg</code>
+          </td>
+          <td>Show registers</td>
+        </tr>
+        <tr>
+          <td>
+            <strong>Memory</strong>
+          </td>
+          <td>
+            <code>x/10w 0x20000000</code>
+          </td>
+          <td>
+            <code>mdw 0x20000000 10</code>
+          </td>
+          <td>Examine memory</td>
+        </tr>
+        <tr>
+          <td>
+            <strong>Quit</strong>
+          </td>
+          <td>
+            <code>quit</code>
+          </td>
+          <td>
+            <code>shutdown</code>
+          </td>
+          <td>Exit debugger</td>
+        </tr>
+      </tbody>
+    </table>
+    <hr />
+    <h2 id="pro-tips">🎊 <strong>Pro Tips</strong></h2>
+    <ol>
+      <li>
+        <strong>Always halt before flashing</strong>: <code>monitor reset halt</code></li>
+      <li>
+        <strong>Use <code>load</code> after <code>monitor program</code></strong>: Ensures symbols are loaded</li>
+      <li>
+        <strong>Set breakpoints before <code>continue</code></strong>: More reliable than setting during execution</li>
+      <li>
+        <strong>Use <code>info registers</code> frequently</strong>: Monitor CPU state</li>
+      <li>
+        <strong>Check memory alignment</strong>: ARM requires aligned access for words</li>
+      <li>
+        <strong>Use <code>monitor</code> prefix in GDB</strong>: For OpenOCD commands</li>
+      <li>
+        <strong>Start OpenOCD first</strong>: Then connect GDB</li>
+      <li>
+        <strong>Use <code>.gdbinit</code></strong>: Automate common setup commands</li>
+    </ol>
+    <hr />
+    <p>
+      <em>This cheatsheet covers everything you need for ARM embedded development with OpenOCD and GDB! Save it for quick reference during your debugging sessions.</em> 🎯</p>
+  </body>
+</html>
