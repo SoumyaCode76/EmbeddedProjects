@@ -1,3 +1,4 @@
 {
-    "git.ignoreLimitWarning": true
+    "git.ignoreLimitWarning": true,
+    "cmake.sourceDirectory": "D:/Users/soumy/GitHub/Learn_embedded_software_dev/EmbeddedProjects/ZephyrRTOS/apps/1_blinky"
 }
