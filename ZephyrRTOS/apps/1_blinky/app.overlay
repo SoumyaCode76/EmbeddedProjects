@@ -1,6 +1,9 @@
 &usart1 {
     current-speed = <9600>;
 };
+&red_led_4 {
+    gpios = <&gpiog 14 GPIO_ACTIVE_LOW>;
+};
 / {
     aliases {
         led1 = &red_led_4;
