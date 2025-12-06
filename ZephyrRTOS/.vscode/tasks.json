@@ -1,0 +1,111 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Start OpenOCD Server",
+            "type": "shell",
+            "command": "C:\\openocd\\xpack-openocd-0.12.0-3\\bin\\openocd.exe",
+            "args": [
+                "-f", "interface/stlink.cfg",
+                "-f", "target/stm32f4x.cfg"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "new",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "isBackground": true,
+            "runOptions": {
+                "instanceLimit": 1
+            },
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "column": 3,
+                    "severity": 4,
+                    "message": 5
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "Open On-Chip Debugger",
+                    "endsPattern": "Listening on port 3333 for gdb connections"
+                }
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "Stop OpenOCD Server",
+            "type": "shell",
+            "command": "taskkill",
+            "args": [
+                "/f", "/im", "openocd.exe"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "West Build",
+            "type": "shell",
+            "command": "west",
+            "args": [
+                "build",
+                "-p", "auto",
+                "-b", "stm32f429i_disc1",
+                "."
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/apps/1_blinky"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "West Flash",
+            "type": "shell",
+            "command": "west",
+            "args": ["flash"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/apps/1_blinky"
+            },
+            "dependsOn": "West Build"
+        },
+        {
+            "label": "West Build & Flash",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "West Build",
+                "West Flash"
+            ],
+            "group": "build"
+        }
+    ]
+}
