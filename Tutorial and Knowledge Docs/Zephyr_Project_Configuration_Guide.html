@@ -1,0 +1,950 @@
+<!DOCTYPE html []>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="author" content="MarkdownViewer++" />
+    <title>Zephyr_Project_Configuration_Guide.md</title>
+    <style type="text/css">
+            
+/* Avoid page breaks inside the most common attributes, especially for exports (i.e. PDF) */
+td, h1, h2, h3, h4, h5, p, ul, ol, li {
+    page-break-inside: avoid; 
+}
+
+        </style>
+  </head>
+  <body>
+    <h1 id="zephyr-rtos-project-configuration-guide-prj.conf">Zephyr RTOS Project Configuration Guide (prj.conf)</h1>
+    <h2 id="table-of-contents">Table of Contents</h2>
+    <ol>
+      <li>
+        <a href="#introduction">Introduction</a>
+      </li>
+      <li>
+        <a href="#understanding-prjconf">Understanding prj.conf</a>
+      </li>
+      <li>
+        <a href="#configuration-syntax">Configuration Syntax</a>
+      </li>
+      <li>
+        <a href="#discovering-available-config-options">Discovering Available CONFIG Options</a>
+      </li>
+      <li>
+        <a href="#common-configuration-categories">Common Configuration Categories</a>
+      </li>
+      <li>
+        <a href="#practical-examples">Practical Examples</a>
+      </li>
+      <li>
+        <a href="#configuration-priority">Configuration Priority</a>
+      </li>
+      <li>
+        <a href="#best-practices">Best Practices</a>
+      </li>
+      <li>
+        <a href="#troubleshooting">Troubleshooting</a>
+      </li>
+    </ol>
+    <hr />
+    <h2 id="introduction">Introduction</h2>
+    <p>The <code>prj.conf</code> file is the <strong>project configuration file</strong> for Zephyr RTOS applications. It uses Kconfig syntax to enable/disable features, set parameters, and configure the build system.</p>
+    <h3 id="purpose">Purpose</h3>
+    <ul>
+      <li>Enable/disable kernel features</li>
+      <li>Configure drivers and subsystems</li>
+      <li>Set memory allocations</li>
+      <li>Control logging and debugging</li>
+      <li>Optimize for size or performance</li>
+    </ul>
+    <hr />
+    <h2 id="understanding-prj.conf">Understanding prj.conf</h2>
+    <h3 id="file-location">File Location</h3>
+    <pre>
+      <code>my_app/
+├── CMakeLists.txt
+├── prj.conf           ← Your configuration file
+├── app.overlay
+└── src/
+    └── main.c
+</code>
+    </pre>
+    <h3 id="basic-structure">Basic Structure</h3>
+    <pre>
+      <code class="language-conf"># Comments start with #
+
+# Enable a feature
+CONFIG_FEATURE=y
+
+# Disable a feature
+CONFIG_FEATURE=n
+
+# Set a numeric value
+CONFIG_HEAP_MEM_POOL_SIZE=2048
+
+# Set a string value
+CONFIG_BT_DEVICE_NAME="MyDevice"
+</code>
+    </pre>
+    <hr />
+    <h2 id="configuration-syntax">Configuration Syntax</h2>
+    <h3 id="boolean-options">Boolean Options</h3>
+    <pre>
+      <code class="language-conf">CONFIG_GPIO=y          # Enable GPIO driver
+CONFIG_SPI=n           # Disable SPI driver
+</code>
+    </pre>
+    <h3 id="integer-options">Integer Options</h3>
+    <pre>
+      <code class="language-conf">CONFIG_MAIN_STACK_SIZE=2048
+CONFIG_HEAP_MEM_POOL_SIZE=4096
+CONFIG_LOG_BUFFER_SIZE=1024
+</code>
+    </pre>
+    <h3 id="hexadecimal-values">Hexadecimal Values</h3>
+    <pre>
+      <code class="language-conf">CONFIG_SRAM_BASE_ADDRESS=0x20000000
+</code>
+    </pre>
+    <h3 id="string-options">String Options</h3>
+    <pre>
+      <code class="language-conf">CONFIG_BOARD="nucleo_f429zi"
+CONFIG_BT_DEVICE_NAME="Zephyr Device"
+</code>
+    </pre>
+    <h3 id="tristate-options-ynm">Tristate Options (y/n/m)</h3>
+    <pre>
+      <code class="language-conf"># y = built-in, n = disabled, m = module (rare in Zephyr)
+CONFIG_NETWORKING=y
+</code>
+    </pre>
+    <hr />
+    <h2 id="discovering-available-config-options">Discovering Available CONFIG Options</h2>
+    <h3 id="method-1-search-kconfig-files-directly">Method 1: Search Kconfig Files Directly</h3>
+    <h4 id="find-all-kconfig-files">Find All Kconfig Files</h4>
+    <pre>
+      <code class="language-bash"># From Zephyr base directory
+find $ZEPHYR_BASE -name "Kconfig*" -type f
+</code>
+    </pre>
+    <h4 id="search-for-specific-config-options">Search for Specific CONFIG Options</h4>
+    <pre>
+      <code class="language-bash"># Search for GPIO-related configs
+grep -r "config GPIO" $ZEPHYR_BASE --include="Kconfig*"
+
+# Search for UART configs
+grep -r "config UART" $ZEPHYR_BASE --include="Kconfig*"
+
+# Search for specific config definition
+grep -r "config MAIN_STACK_SIZE" $ZEPHYR_BASE --include="Kconfig*"
+</code>
+    </pre>
+    <h4 id="example-output">Example Output</h4>
+    <pre>
+      <code class="language-bash">$ grep -r "config MAIN_STACK_SIZE" $ZEPHYR_BASE --include="Kconfig*"
+kernel/Kconfig:config MAIN_STACK_SIZE
+kernel/Kconfig:         int "Size of stack for initialization and main thread"
+</code>
+    </pre>
+    <h3 id="method-2-use-zephyr-documentation">Method 2: Use Zephyr Documentation</h3>
+    <h4 id="online-documentation">Online Documentation</h4>
+    <pre>
+      <code>https://docs.zephyrproject.org/latest/kconfig.html
+</code>
+    </pre>
+    <h4 id="generate-local-documentation">Generate Local Documentation</h4>
+    <pre>
+      <code class="language-bash">cd $ZEPHYR_BASE
+cmake -B build
+ninja -C build kconfig-html
+# Open build/kconfig/html/index.html
+</code>
+    </pre>
+    <h3 id="method-3-examine-board-specific-configs">Method 3: Examine Board-Specific Configs</h3>
+    <h4 id="check-board-defconfig">Check Board Defconfig</h4>
+    <pre>
+      <code class="language-bash"># Find your board's defconfig
+find $ZEPHYR_BASE/boards -name "*defconfig" | grep your_board
+
+# View the defconfig
+cat $ZEPHYR_BASE/boards/vendor/board/board_defconfig
+</code>
+    </pre>
+    <h4 id="example-stm32-nucleo-f429zi">Example: STM32 Nucleo F429ZI</h4>
+    <pre>
+      <code class="language-bash">cat $ZEPHYR_BASE/boards/st/nucleo_f429zi/nucleo_f429zi_defconfig
+</code>
+    </pre>
+    <h3 id="method-4-search-by-feature-category">Method 4: Search by Feature Category</h3>
+    <h4 id="common-kconfig-locations">Common Kconfig Locations</h4>
+    <pre>
+      <code class="language-bash"># Kernel configurations
+cat $ZEPHYR_BASE/kernel/Kconfig
+
+# Driver configurations
+ls $ZEPHYR_BASE/drivers/*/Kconfig
+
+# Subsystem configurations
+ls $ZEPHYR_BASE/subsys/*/Kconfig
+
+# Architecture-specific
+cat $ZEPHYR_BASE/arch/arm/Kconfig
+</code>
+    </pre>
+    <h3 id="method-5-use-grep-with-context">Method 5: Use grep with Context</h3>
+    <h4 id="find-config-with-description">Find Config with Description</h4>
+    <pre>
+      <code class="language-bash"># Show 5 lines after the config declaration
+grep -A 5 "config UART" $ZEPHYR_BASE/drivers/serial/Kconfig
+</code>
+    </pre>
+    <h4 id="example-output-1">Example Output</h4>
+    <pre>
+      <code>config UART_CONSOLE
+    bool "Console over UART"
+    depends on UART_DRIVER
+    select CONSOLE
+    help
+      Enable console over UART driver.
+</code>
+    </pre>
+    <h3 id="method-6-check-build-output">Method 6: Check Build Output</h3>
+    <h4 id="view-final-configuration">View Final Configuration</h4>
+    <pre>
+      <code class="language-bash"># After building your project
+west build -b your_board
+
+# View the complete configuration
+cat build/zephyr/.config
+
+# Search for specific configs
+grep "CONFIG_GPIO" build/zephyr/.config
+</code>
+    </pre>
+    <h3 id="method-7-use-west-commands">Method 7: Use west Commands</h3>
+    <h4 id="list-all-kconfig-options">List All Kconfig Options</h4>
+    <pre>
+      <code class="language-bash"># Set ZEPHYR_BASE environment variable
+export ZEPHYR_BASE=/path/to/zephyr
+
+# Use Python to parse Kconfig
+python3 -c "
+import sys
+sys.path.insert(0, '$ZEPHYR_BASE/scripts/kconfig')
+import kconfiglib
+kconf = kconfiglib.Kconfig()
+for sym in kconf.syms.values():
+    if sym.name.startswith('CONFIG_'):
+        print(sym.name)
+"
+</code>
+    </pre>
+    <h3 id="method-8-search-by-dependency">Method 8: Search by Dependency</h3>
+    <h4 id="find-what-depends-on-a-config">Find What Depends on a Config</h4>
+    <pre>
+      <code class="language-bash"># Find configs that depend on GPIO
+grep -r "depends on GPIO" $ZEPHYR_BASE --include="Kconfig*"
+
+# Find what selects a config
+grep -r "select UART_CONSOLE" $ZEPHYR_BASE --include="Kconfig*"
+</code>
+    </pre>
+    <h3 id="method-9-platform-specific-search">Method 9: Platform-Specific Search</h3>
+    <h4 id="stm32-specific-configs">STM32-Specific Configs</h4>
+    <pre>
+      <code class="language-bash">grep -r "config STM32" $ZEPHYR_BASE/soc/st --include="Kconfig*"
+</code>
+    </pre>
+    <h4 id="nordic-specific-configs">Nordic-Specific Configs</h4>
+    <pre>
+      <code class="language-bash">grep -r "config NRF" $ZEPHYR_BASE/soc/nordic --include="Kconfig*"
+</code>
+    </pre>
+    <h3 id="method-10-use-vs-code-search">Method 10: Use VS Code Search</h3>
+    <p>If working in VS Code:</p>
+    <pre>
+      <code>1. Press Ctrl+Shift+F (or Cmd+Shift+F on Mac)
+2. Search for: "config YOUR_FEATURE"
+3. Include: **/Kconfig*
+4. Exclude: **/build/**
+</code>
+    </pre>
+    <hr />
+    <h2 id="common-configuration-categories">Common Configuration Categories</h2>
+    <h3 id="kernel-configurations">1. <strong>Kernel Configurations</strong></h3>
+    <h4 id="thread-and-stack-settings">Thread and Stack Settings</h4>
+    <pre>
+      <code class="language-conf"># Main thread stack size
+CONFIG_MAIN_STACK_SIZE=2048
+
+# Idle thread stack size
+CONFIG_IDLE_STACK_SIZE=512
+
+# ISR stack size
+CONFIG_ISR_STACK_SIZE=2048
+
+# Number of thread priorities
+CONFIG_NUM_PREEMPT_PRIORITIES=15
+</code>
+    </pre>
+    <h4 id="memory-management">Memory Management</h4>
+    <pre>
+      <code class="language-conf"># Enable heap memory pool
+CONFIG_HEAP_MEM_POOL_SIZE=4096
+
+# Enable memory protection
+CONFIG_MEMORY_PROTECTION=y
+
+# Stack canaries for overflow detection
+CONFIG_STACK_CANARIES=y
+</code>
+    </pre>
+    <h4 id="timers-and-scheduling">Timers and Scheduling</h4>
+    <pre>
+      <code class="language-conf"># System clock frequency (Hz)
+CONFIG_SYS_CLOCK_TICKS_PER_SEC=1000
+
+# Enable timers
+CONFIG_TIMERS=y
+
+# Tickless kernel
+CONFIG_TICKLESS_KERNEL=y
+</code>
+    </pre>
+    <h3 id="driver-configurations">2. <strong>Driver Configurations</strong></h3>
+    <h4 id="gpio">GPIO</h4>
+    <pre>
+      <code class="language-conf">CONFIG_GPIO=y
+</code>
+    </pre>
+    <h4 id="uartserial">UART/Serial</h4>
+    <pre>
+      <code class="language-conf">CONFIG_SERIAL=y
+CONFIG_UART_CONSOLE=y
+CONFIG_UART_INTERRUPT_DRIVEN=y
+CONFIG_UART_LINE_CTRL=y
+</code>
+    </pre>
+    <h4 id="i2c">I2C</h4>
+    <pre>
+      <code class="language-conf">CONFIG_I2C=y
+CONFIG_I2C_INIT_PRIORITY=50
+</code>
+    </pre>
+    <h4 id="spi">SPI</h4>
+    <pre>
+      <code class="language-conf">CONFIG_SPI=y
+CONFIG_SPI_INIT_PRIORITY=70
+</code>
+    </pre>
+    <h4 id="adc">ADC</h4>
+    <pre>
+      <code class="language-conf">CONFIG_ADC=y
+</code>
+    </pre>
+    <h4 id="pwm">PWM</h4>
+    <pre>
+      <code class="language-conf">CONFIG_PWM=y
+</code>
+    </pre>
+    <h4 id="can">CAN</h4>
+    <pre>
+      <code class="language-conf">CONFIG_CAN=y
+CONFIG_CAN_INIT_PRIORITY=80
+</code>
+    </pre>
+    <h4 id="usb">USB</h4>
+    <pre>
+      <code class="language-conf">CONFIG_USB_DEVICE_STACK=y
+CONFIG_USB_DEVICE_PRODUCT="Zephyr USB Device"
+CONFIG_USB_DEVICE_VID=0x2FE3
+CONFIG_USB_DEVICE_PID=0x0001
+</code>
+    </pre>
+    <h3 id="subsystem-configurations">3. <strong>Subsystem Configurations</strong></h3>
+    <h4 id="logging">Logging</h4>
+    <pre>
+      <code class="language-conf"># Enable logging
+CONFIG_LOG=y
+
+# Set default log level
+CONFIG_LOG_DEFAULT_LEVEL=3  # 0=OFF, 1=ERR, 2=WRN, 3=INF, 4=DBG
+
+# Log buffer size
+CONFIG_LOG_BUFFER_SIZE=1024
+
+# Backend configurations
+CONFIG_LOG_BACKEND_UART=y
+CONFIG_LOG_BACKEND_RTT=y
+</code>
+    </pre>
+    <h4 id="shell">Shell</h4>
+    <pre>
+      <code class="language-conf">CONFIG_SHELL=y
+CONFIG_SHELL_BACKEND_SERIAL=y
+CONFIG_SHELL_PROMPT_UART="zephyr:~$ "
+</code>
+    </pre>
+    <h4 id="networking">Networking</h4>
+    <pre>
+      <code class="language-conf">CONFIG_NETWORKING=y
+CONFIG_NET_IPV4=y
+CONFIG_NET_IPV6=y
+CONFIG_NET_TCP=y
+CONFIG_NET_UDP=y
+
+# Network buffer configuration
+CONFIG_NET_BUF_DATA_SIZE=128
+CONFIG_NET_PKT_RX_COUNT=10
+CONFIG_NET_PKT_TX_COUNT=10
+</code>
+    </pre>
+    <h4 id="bluetooth">Bluetooth</h4>
+    <pre>
+      <code class="language-conf">CONFIG_BT=y
+CONFIG_BT_PERIPHERAL=y
+CONFIG_BT_CENTRAL=y
+CONFIG_BT_DEVICE_NAME="Zephyr BLE"
+CONFIG_BT_MAX_CONN=4
+CONFIG_BT_L2CAP_TX_BUF_COUNT=8
+</code>
+    </pre>
+    <h4 id="wi-fi">Wi-Fi</h4>
+    <pre>
+      <code class="language-conf">CONFIG_WIFI=y
+CONFIG_WIFI_INIT_PRIORITY=80
+CONFIG_NET_L2_WIFI_SHELL=y
+</code>
+    </pre>
+    <h4 id="file-systems">File Systems</h4>
+    <pre>
+      <code class="language-conf">CONFIG_FILE_SYSTEM=y
+CONFIG_FAT_FILESYSTEM_ELM=y
+CONFIG_FILE_SYSTEM_LITTLEFS=y
+</code>
+    </pre>
+    <h4 id="storage">Storage</h4>
+    <pre>
+      <code class="language-conf">CONFIG_FLASH=y
+CONFIG_FLASH_MAP=y
+CONFIG_STREAM_FLASH=y
+CONFIG_NVS=y  # Non-Volatile Storage
+CONFIG_SETTINGS=y
+</code>
+    </pre>
+    <h3 id="debug-and-testing">4. <strong>Debug and Testing</strong></h3>
+    <h4 id="debug-options">Debug Options</h4>
+    <pre>
+      <code class="language-conf"># Enable assertions
+CONFIG_ASSERT=y
+
+# Thread monitoring
+CONFIG_THREAD_MONITOR=y
+
+# Thread name
+CONFIG_THREAD_NAME=y
+
+# Object tracing
+CONFIG_TRACING=y
+
+# Init stacks with 0xAA
+CONFIG_INIT_STACKS=y
+
+# Thread stack info
+CONFIG_THREAD_STACK_INFO=y
+</code>
+    </pre>
+    <h4 id="testing">Testing</h4>
+    <pre>
+      <code class="language-conf">CONFIG_ZTEST=y
+CONFIG_ZTEST_NEW_API=y
+</code>
+    </pre>
+    <h3 id="power-management">5. <strong>Power Management</strong></h3>
+    <pre>
+      <code class="language-conf">CONFIG_PM=y
+CONFIG_PM_DEVICE=y
+CONFIG_PM_POLICY_DEFAULT=y
+</code>
+    </pre>
+    <h3 id="security-and-crypto">6. <strong>Security and Crypto</strong></h3>
+    <pre>
+      <code class="language-conf">CONFIG_MBEDTLS=y
+CONFIG_ENTROPY_GENERATOR=y
+CONFIG_TEST_RANDOM_GENERATOR=y
+</code>
+    </pre>
+    <h3 id="build-and-optimization">7. <strong>Build and Optimization</strong></h3>
+    <pre>
+      <code class="language-conf"># Optimize for size
+CONFIG_SIZE_OPTIMIZATIONS=y
+
+# Optimize for speed
+CONFIG_SPEED_OPTIMIZATIONS=y
+
+# Debug optimizations
+CONFIG_DEBUG_OPTIMIZATIONS=y
+
+# Link Time Optimization
+CONFIG_LTO=y
+
+# Remove unused sections
+CONFIG_LINKER_ORPHAN_SECTION_PLACE=y
+</code>
+    </pre>
+    <hr />
+    <h2 id="practical-examples">Practical Examples</h2>
+    <h3 id="example-1-basic-gpio-blinky">Example 1: Basic GPIO Blinky</h3>
+    <pre>
+      <code class="language-conf"># prj.conf for LED blinking application
+CONFIG_GPIO=y
+CONFIG_LOG=y
+CONFIG_LOG_DEFAULT_LEVEL=3
+</code>
+    </pre>
+    <h3 id="example-2-uart-communication">Example 2: UART Communication</h3>
+    <pre>
+      <code class="language-conf"># Enable UART for serial communication
+CONFIG_SERIAL=y
+CONFIG_UART_CONSOLE=y
+CONFIG_UART_INTERRUPT_DRIVEN=y
+
+# Logging over UART
+CONFIG_LOG=y
+CONFIG_LOG_BACKEND_UART=y
+CONFIG_LOG_DEFAULT_LEVEL=4
+
+# Larger buffer for output
+CONFIG_UART_CONSOLE_BUFFER_SIZE=512
+</code>
+    </pre>
+    <h3 id="example-3-i2c-sensor-application">Example 3: I2C Sensor Application</h3>
+    <pre>
+      <code class="language-conf"># Enable I2C
+CONFIG_I2C=y
+
+# Enable GPIO for interrupt pins
+CONFIG_GPIO=y
+
+# Sensor subsystem
+CONFIG_SENSOR=y
+
+# Logging
+CONFIG_LOG=y
+CONFIG_LOG_DEFAULT_LEVEL=3
+
+# Printf support for float (sensor readings)
+CONFIG_CBPRINTF_FP_SUPPORT=y
+</code>
+    </pre>
+    <h3 id="example-4-bluetooth-low-energy">Example 4: Bluetooth Low Energy</h3>
+    <pre>
+      <code class="language-conf"># Bluetooth stack
+CONFIG_BT=y
+CONFIG_BT_PERIPHERAL=y
+CONFIG_BT_DEVICE_NAME="MyBLEDevice"
+
+# GAP and GATT
+CONFIG_BT_GAP_PERIPHERAL_PREF_PARAMS=y
+CONFIG_BT_GATT_DYNAMIC_DB=y
+
+# Connection parameters
+CONFIG_BT_MAX_CONN=2
+CONFIG_BT_MAX_PAIRED=2
+
+# Buffer sizes
+CONFIG_BT_L2CAP_TX_BUF_COUNT=8
+CONFIG_BT_BUF_ACL_RX_SIZE=251
+
+# Logging
+CONFIG_BT_DEBUG_LOG=y
+CONFIG_LOG=y
+CONFIG_LOG_DEFAULT_LEVEL=3
+</code>
+    </pre>
+    <h3 id="example-5-network-application-ethernet">Example 5: Network Application (Ethernet)</h3>
+    <pre>
+      <code class="language-conf"># Networking stack
+CONFIG_NETWORKING=y
+CONFIG_NET_TCP=y
+CONFIG_NET_UDP=y
+CONFIG_NET_IPV4=y
+CONFIG_NET_IPV6=n
+
+# Ethernet
+CONFIG_NET_L2_ETHERNET=y
+
+# DHCP client
+CONFIG_NET_DHCPV4=y
+
+# Network buffers
+CONFIG_NET_PKT_RX_COUNT=16
+CONFIG_NET_PKT_TX_COUNT=16
+CONFIG_NET_BUF_RX_COUNT=32
+CONFIG_NET_BUF_TX_COUNT=32
+
+# Network shell for debugging
+CONFIG_NET_SHELL=y
+CONFIG_SHELL=y
+
+# Logging
+CONFIG_LOG=y
+CONFIG_NET_LOG=y
+</code>
+    </pre>
+    <h3 id="example-6-usb-cdc-acm-serial">Example 6: USB CDC ACM Serial</h3>
+    <pre>
+      <code class="language-conf"># USB device stack
+CONFIG_USB_DEVICE_STACK=y
+CONFIG_USB_DEVICE_PRODUCT="Zephyr USB Serial"
+CONFIG_USB_DEVICE_VID=0x2FE3
+CONFIG_USB_DEVICE_PID=0x0001
+
+# CDC ACM class
+CONFIG_USB_CDC_ACM=y
+
+# Console over USB
+CONFIG_UART_CONSOLE=y
+CONFIG_UART_LINE_CTRL=y
+
+# Logging
+CONFIG_LOG=y
+</code>
+    </pre>
+    <h3 id="example-7-file-system-with-sd-card">Example 7: File System with SD Card</h3>
+    <pre>
+      <code class="language-conf"># Disk and file system
+CONFIG_DISK_DRIVER_SDMMC=y
+CONFIG_FILE_SYSTEM=y
+CONFIG_FAT_FILESYSTEM_ELM=y
+
+# SPI for SD card
+CONFIG_SPI=y
+CONFIG_GPIO=y
+
+# Logging
+CONFIG_LOG=y
+CONFIG_FS_LOG_LEVEL_DBG=y
+</code>
+    </pre>
+    <h3 id="example-8-real-time-application">Example 8: Real-Time Application</h3>
+    <pre>
+      <code class="language-conf"># Optimize for real-time performance
+CONFIG_SPEED_OPTIMIZATIONS=y
+CONFIG_NO_OPTIMIZATIONS=n
+
+# Tickless kernel for precise timing
+CONFIG_TICKLESS_KERNEL=y
+CONFIG_SYS_CLOCK_TICKS_PER_SEC=10000
+
+# High priority threads
+CONFIG_NUM_PREEMPT_PRIORITIES=32
+
+# Minimal latency
+CONFIG_ZERO_LATENCY_IRQS=y
+
+# Disable unnecessary features
+CONFIG_CONSOLE=n
+CONFIG_LOG=n
+</code>
+    </pre>
+    <h3 id="example-9-low-power-application">Example 9: Low Power Application</h3>
+    <pre>
+      <code class="language-conf"># Power management
+CONFIG_PM=y
+CONFIG_PM_DEVICE=y
+
+# Tickless kernel
+CONFIG_TICKLESS_KERNEL=y
+
+# Reduce peripheral activity
+CONFIG_UART=n
+CONFIG_CONSOLE=n
+CONFIG_LOG=n
+
+# Low power mode
+CONFIG_PM_POLICY_DEFAULT=y
+</code>
+    </pre>
+    <h3 id="example-10-production-build">Example 10: Production Build</h3>
+    <pre>
+      <code class="language-conf"># Size optimizations
+CONFIG_SIZE_OPTIMIZATIONS=y
+
+# Disable debug features
+CONFIG_LOG=n
+CONFIG_CONSOLE=n
+CONFIG_SHELL=n
+CONFIG_ASSERT=n
+CONFIG_DEBUG=n
+
+# Enable security features
+CONFIG_STACK_CANARIES=y
+CONFIG_STACK_SENTINEL=y
+
+# Bootloader support
+CONFIG_BOOTLOADER_MCUBOOT=y
+</code>
+    </pre>
+    <hr />
+    <h2 id="configuration-priority">Configuration Priority</h2>
+    <p>Zephyr merges configurations in this order (later overrides earlier):</p>
+    <ol>
+      <li>
+        <strong>Board defconfig</strong> (<code>boards/vendor/board/board_defconfig</code>)</li>
+      <li>
+        <strong>SOC defconfig</strong> (if applicable)</li>
+      <li>
+        <strong>Kconfig defaults</strong> (from Kconfig files)</li>
+      <li>
+        <strong>prj.conf</strong> (your application config) ← Highest priority</li>
+      <li>
+        <strong>Overlay configs</strong> (if using <code>-DOVERLAY_CONFIG=extra.conf</code>)</li>
+    </ol>
+    <h3 id="example-multiple-config-files">Example: Multiple Config Files</h3>
+    <pre>
+      <code class="language-bash"># Build with additional config
+west build -b nucleo_f429zi -- -DOVERLAY_CONFIG="debug.conf;usb.conf"
+</code>
+    </pre>
+    <hr />
+    <h2 id="best-practices">Best Practices</h2>
+    <h3 id="organize-configurations">1. <strong>Organize Configurations</strong></h3>
+    <pre>
+      <code class="language-conf"># ============================================
+# Kernel Configuration
+# ============================================
+CONFIG_MAIN_STACK_SIZE=2048
+CONFIG_HEAP_MEM_POOL_SIZE=4096
+
+# ============================================
+# Driver Configuration
+# ============================================
+CONFIG_GPIO=y
+CONFIG_UART_CONSOLE=y
+
+# ============================================
+# Subsystem Configuration
+# ============================================
+CONFIG_LOG=y
+CONFIG_LOG_DEFAULT_LEVEL=3
+
+# ============================================
+# Application-Specific
+# ============================================
+CONFIG_MY_APP_FEATURE=y
+</code>
+    </pre>
+    <h3 id="use-comments">2. <strong>Use Comments</strong></h3>
+    <pre>
+      <code class="language-conf"># Enable GPIO for LED control
+CONFIG_GPIO=y
+
+# UART console for debugging (115200 baud)
+CONFIG_UART_CONSOLE=y
+
+# Increase stack for sensor processing
+CONFIG_MAIN_STACK_SIZE=4096  # Default is 1024
+</code>
+    </pre>
+    <h3 id="create-separate-configs-for-different-builds">3. <strong>Create Separate Configs for Different Builds</strong></h3>
+    <pre>
+      <code>my_app/
+├── prj.conf           # Base configuration
+├── debug.conf         # Debug-specific
+├── release.conf       # Release optimizations
+└── test.conf          # Testing configuration
+</code>
+    </pre>
+    <pre>
+      <code class="language-bash"># Build with debug config
+west build -b board -- -DOVERLAY_CONFIG=debug.conf
+
+# Build release
+west build -b board -- -DOVERLAY_CONFIG=release.conf
+</code>
+    </pre>
+    <h3 id="check-dependencies">4. <strong>Check Dependencies</strong></h3>
+    <pre>
+      <code class="language-conf"># This requires CONFIG_SPI=y
+CONFIG_SPI_NOR=y
+
+# Always enable dependencies first
+CONFIG_SPI=y
+CONFIG_SPI_NOR=y
+</code>
+    </pre>
+    <h3 id="validate-your-configuration">5. <strong>Validate Your Configuration</strong></h3>
+    <pre>
+      <code class="language-bash"># Build and check for warnings
+west build -b your_board
+
+# Check final configuration
+grep "CONFIG_GPIO" build/zephyr/.config
+</code>
+    </pre>
+    <h3 id="use-kconfig-search-script">6. <strong>Use Kconfig Search Script</strong></h3>
+    <p>Create a helper script <code>find_kconfig.sh</code>:</p>
+    <pre>
+      <code class="language-bash">#!/bin/bash
+# Usage: ./find_kconfig.sh CONFIG_NAME
+
+if [ -z "$1" ]; then
+    echo "Usage: $0 CONFIG_NAME"
+    exit 1
+fi
+
+echo "Searching for $1 in Kconfig files..."
+grep -rn "config ${1#CONFIG_}" $ZEPHYR_BASE --include="Kconfig*" | head -20
+</code>
+    </pre>
+    <h3 id="document-non-obvious-settings">7. <strong>Document Non-Obvious Settings</strong></h3>
+    <pre>
+      <code class="language-conf"># Required for STM32 USB DFU bootloader compatibility
+CONFIG_USE_DT_CODE_PARTITION=y
+
+# Workaround for errata 1.2.3 on this chip
+CONFIG_SOC_SPECIFIC_WORKAROUND=y
+</code>
+    </pre>
+    <hr />
+    <h2 id="troubleshooting">Troubleshooting</h2>
+    <h3 id="issue-1-config-option-not-taking-effect">Issue 1: Config Option Not Taking Effect</h3>
+    <p>
+      <strong>Problem</strong>: Set <code>CONFIG_FEATURE=y</code> but feature doesn't work</p>
+    <p>
+      <strong>Solutions</strong>:</p>
+    <pre>
+      <code class="language-bash"># Check if config was actually set
+grep "CONFIG_FEATURE" build/zephyr/.config
+
+# Check dependencies
+grep -A 10 "config FEATURE" $ZEPHYR_BASE --include="Kconfig*" -r
+
+# Look for dependency errors in build output
+west build -b board 2&gt;&amp;1 | grep -i "warning\|error"
+</code>
+    </pre>
+    <h3 id="issue-2-unknown-configuration-option">Issue 2: Unknown Configuration Option</h3>
+    <p>
+      <strong>Problem</strong>: Build warning about unknown config</p>
+    <p>
+      <strong>Solutions</strong>:</p>
+    <pre>
+      <code class="language-bash"># Search for correct spelling
+grep -r "config.*FEATURE" $ZEPHYR_BASE --include="Kconfig*"
+
+# Check if it's arch/board specific
+find $ZEPHYR_BASE -name "Kconfig*" -exec grep -l "CONFIG_FEATURE" {} \;
+</code>
+    </pre>
+    <h3 id="issue-3-conflicting-configurations">Issue 3: Conflicting Configurations</h3>
+    <p>
+      <strong>Problem</strong>: Configs conflict with each other</p>
+    <p>
+      <strong>Solutions</strong>:</p>
+    <pre>
+      <code class="language-conf"># Check Kconfig dependencies
+# Some configs are mutually exclusive
+
+# Example: Can't have both
+CONFIG_SIZE_OPTIMIZATIONS=y
+CONFIG_SPEED_OPTIMIZATIONS=y
+
+# Choose one or the other
+</code>
+    </pre>
+    <h3 id="issue-4-board-specific-limitations">Issue 4: Board-Specific Limitations</h3>
+    <p>
+      <strong>Problem</strong>: Config works on one board but not another</p>
+    <p>
+      <strong>Solutions</strong>:</p>
+    <pre>
+      <code class="language-bash"># Check board's defconfig
+cat $ZEPHYR_BASE/boards/vendor/board/board_defconfig
+
+# Check if hardware supports feature
+grep "depends on" $ZEPHYR_BASE/drivers/*/Kconfig
+</code>
+    </pre>
+    <hr />
+    <h2 id="quick-reference-finding-configs-by-feature">Quick Reference: Finding Configs by Feature</h2>
+    <h3 id="gpio-1">GPIO</h3>
+    <pre>
+      <code class="language-bash">grep -r "config GPIO" $ZEPHYR_BASE/drivers/gpio/Kconfig
+</code>
+    </pre>
+    <h3 id="uart">UART</h3>
+    <pre>
+      <code class="language-bash">grep -r "config UART" $ZEPHYR_BASE/drivers/serial/Kconfig
+grep -r "config SERIAL" $ZEPHYR_BASE/drivers/serial/Kconfig
+</code>
+    </pre>
+    <h3 id="i2c-1">I2C</h3>
+    <pre>
+      <code class="language-bash">grep -r "config I2C" $ZEPHYR_BASE/drivers/i2c/Kconfig
+</code>
+    </pre>
+    <h3 id="spi-1">SPI</h3>
+    <pre>
+      <code class="language-bash">grep -r "config SPI" $ZEPHYR_BASE/drivers/spi/Kconfig
+</code>
+    </pre>
+    <h3 id="networking-1">Networking</h3>
+    <pre>
+      <code class="language-bash">grep -r "config NET" $ZEPHYR_BASE/subsys/net/Kconfig
+</code>
+    </pre>
+    <h3 id="bluetooth-1">Bluetooth</h3>
+    <pre>
+      <code class="language-bash">grep -r "config BT" $ZEPHYR_BASE/subsys/bluetooth/Kconfig
+</code>
+    </pre>
+    <h3 id="usb-1">USB</h3>
+    <pre>
+      <code class="language-bash">grep -r "config USB" $ZEPHYR_BASE/subsys/usb/Kconfig
+</code>
+    </pre>
+    <h3 id="logging-1">Logging</h3>
+    <pre>
+      <code class="language-bash">grep -r "config LOG" $ZEPHYR_BASE/subsys/logging/Kconfig
+</code>
+    </pre>
+    <hr />
+    <h2 id="useful-commands-summary">Useful Commands Summary</h2>
+    <pre>
+      <code class="language-bash"># Find all Kconfig files
+find $ZEPHYR_BASE -name "Kconfig*" -type f
+
+# Search for specific config
+grep -r "config FEATURE_NAME" $ZEPHYR_BASE --include="Kconfig*"
+
+# View final merged config
+cat build/zephyr/.config
+
+# Search in final config
+grep "CONFIG_" build/zephyr/.config | grep UART
+
+# View board defconfig
+cat $ZEPHYR_BASE/boards/vendor/board/*_defconfig
+
+# Check config with description
+grep -A 5 "config UART_CONSOLE" $ZEPHYR_BASE --include="Kconfig*" -r
+</code>
+    </pre>
+    <hr />
+    <h2 id="additional-resources">Additional Resources</h2>
+    <ul>
+      <li>
+        <strong>Kconfig Documentation</strong>: <a href="https://docs.zephyrproject.org/latest/build/kconfig/index.html">https://docs.zephyrproject.org/latest/build/kconfig/index.html</a></li>
+      <li>
+        <strong>Configuration System</strong>: <a href="https://docs.zephyrproject.org/latest/build/kconfig/tips.html">https://docs.zephyrproject.org/latest/build/kconfig/tips.html</a></li>
+      <li>
+        <strong>Zephyr Samples</strong>: <code>$ZEPHYR_BASE/samples/</code> (check prj.conf in each)</li>
+      <li>
+        <strong>Kconfig Language</strong>: <a href="https://www.kernel.org/doc/html/latest/kbuild/kconfig-language.html">https://www.kernel.org/doc/html/latest/kbuild/kconfig-language.html</a></li>
+    </ul>
+    <hr />
+    <p>
+      <strong>Author</strong>: GitHub Copilot<br /><strong>Last Updated</strong>: December 4, 2025<br /><strong>Version</strong>: 1.0<br /><strong>License</strong>: Feel free to use and share this guide</p>
+  </body>
+</html>

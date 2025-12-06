@@ -1,0 +1,633 @@
+<!DOCTYPE html []>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="author" content="MarkdownViewer++" />
+    <title>Zephyr_Devicetree_Overlay_Guide.md</title>
+    <style type="text/css">
+            
+/* Avoid page breaks inside the most common attributes, especially for exports (i.e. PDF) */
+td, h1, h2, h3, h4, h5, p, ul, ol, li {
+    page-break-inside: avoid; 
+}
+
+        </style>
+  </head>
+  <body>
+    <h1 id="zephyr-rtos-devicetree-overlay-guide">Zephyr RTOS Devicetree Overlay Guide</h1>
+    <h2 id="table-of-contents">Table of Contents</h2>
+    <ol>
+      <li>
+        <a href="#introduction">Introduction</a>
+      </li>
+      <li>
+        <a href="#overlay-file-basics">Overlay File Basics</a>
+      </li>
+      <li>
+        <a href="#modifying-existing-properties">Modifying Existing Properties</a>
+      </li>
+      <li>
+        <a href="#adding-new-properties">Adding New Properties</a>
+      </li>
+      <li>
+        <a href="#deleting-properties">Deleting Properties</a>
+      </li>
+      <li>
+        <a href="#creating-new-nodes">Creating New Nodes</a>
+      </li>
+      <li>
+        <a href="#working-with-aliases-and-chosen">Working with Aliases and Chosen</a>
+      </li>
+      <li>
+        <a href="#common-property-types">Common Property Types</a>
+      </li>
+      <li>
+        <a href="#practical-examples">Practical Examples</a>
+      </li>
+      <li>
+        <a href="#best-practices">Best Practices</a>
+      </li>
+    </ol>
+    <hr />
+    <h2 id="introduction">Introduction</h2>
+    <p>
+      <strong>Devicetree overlays</strong> (<code>app.overlay</code>) allow you to modify or extend the board's default devicetree without editing the board definition files. They use the same <code>.dts</code> syntax as devicetree files.</p>
+    <h3 id="when-to-use-overlays">When to Use Overlays</h3>
+    <ul>
+      <li>Modify peripheral configurations (UART baud rate, I2C speed, etc.)</li>
+      <li>Enable/disable peripherals</li>
+      <li>Add custom hardware definitions (LEDs, buttons, sensors)</li>
+      <li>Override pin assignments</li>
+      <li>Set application-specific chosen nodes</li>
+    </ul>
+    <hr />
+    <h2 id="overlay-file-basics">Overlay File Basics</h2>
+    <h3 id="file-location">File Location</h3>
+    <p>Place your overlay file in your application directory:</p>
+    <pre>
+      <code>my_app/
+├── CMakeLists.txt
+├── prj.conf
+├── app.overlay          ← Your overlay file
+└── src/
+    └── main.c
+</code>
+    </pre>
+    <h3 id="basic-syntax">Basic Syntax</h3>
+    <pre>
+      <code class="language-dts">// Reference and modify existing node
+&amp;existing_node_label {
+    property = &lt;value&gt;;
+};
+
+// Create new nodes
+/ {
+    new_node {
+        property = &lt;value&gt;;
+    };
+};
+</code>
+    </pre>
+    <hr />
+    <h2 id="modifying-existing-properties">Modifying Existing Properties</h2>
+    <h3 id="syntax-reference-node-with-label">Syntax: Reference Node with <code>&amp;label</code></h3>
+    <p>Use <code>&amp;</code> followed by the node label to reference an existing devicetree node.</p>
+    <h3 id="example-1-change-uart-baud-rate">Example 1: Change UART Baud Rate</h3>
+    <pre>
+      <code class="language-dts">&amp;uart0 {
+    current-speed = &lt;115200&gt;;  // Modify existing property
+};
+</code>
+    </pre>
+    <h3 id="example-2-enable-disabled-peripheral">Example 2: Enable Disabled Peripheral</h3>
+    <pre>
+      <code class="language-dts">&amp;i2c1 {
+    status = "okay";  // Change from "disabled" to "okay"
+};
+</code>
+    </pre>
+    <h3 id="example-3-change-gpio-configuration">Example 3: Change GPIO Configuration</h3>
+    <pre>
+      <code class="language-dts">&amp;gpioa {
+    gpio-reserved-ranges = &lt;0 2&gt;, &lt;15 1&gt;;  // Reserve pins PA0, PA1, PA15
+};
+</code>
+    </pre>
+    <h3 id="example-4-modify-multiple-properties">Example 4: Modify Multiple Properties</h3>
+    <pre>
+      <code class="language-dts">&amp;spi2 {
+    status = "okay";
+    clock-frequency = &lt;8000000&gt;;
+    cs-gpios = &lt;&amp;gpiob 12 GPIO_ACTIVE_LOW&gt;;
+};
+</code>
+    </pre>
+    <hr />
+    <h2 id="adding-new-properties">Adding New Properties</h2>
+    <p>You can add properties that don't exist in the base devicetree.</p>
+    <h3 id="example-1-add-custom-property">Example 1: Add Custom Property</h3>
+    <pre>
+      <code class="language-dts">&amp;uart2 {
+    my-custom-property = &lt;42&gt;;
+    my-string-property = "custom_value";
+};
+</code>
+    </pre>
+    <h3 id="example-2-add-pin-control-configuration">Example 2: Add Pin Control Configuration</h3>
+    <pre>
+      <code class="language-dts">&amp;usart1 {
+    pinctrl-0 = &lt;&amp;usart1_tx_pa9 &amp;usart1_rx_pa10&gt;;
+    pinctrl-1 = &lt;&amp;usart1_tx_sleep_pa9 &amp;usart1_rx_sleep_pa10&gt;;
+    pinctrl-names = "default", "sleep";
+};
+</code>
+    </pre>
+    <h3 id="example-3-add-dma-configuration">Example 3: Add DMA Configuration</h3>
+    <pre>
+      <code class="language-dts">&amp;spi1 {
+    dmas = &lt;&amp;dma1 3 0x20440 0x0&gt;,
+           &lt;&amp;dma1 2 0x20480 0x0&gt;;
+    dma-names = "tx", "rx";
+};
+</code>
+    </pre>
+    <hr />
+    <h2 id="deleting-properties">Deleting Properties</h2>
+    <h3 id="syntax-use-delete-property">Syntax: Use <code>/delete-property/</code></h3>
+    <pre>
+      <code class="language-dts">&amp;node_label {
+    /delete-property/ property-name;
+};
+</code>
+    </pre>
+    <h3 id="example-1-remove-interrupt-configuration">Example 1: Remove Interrupt Configuration</h3>
+    <pre>
+      <code class="language-dts">&amp;gpio0 {
+    /delete-property/ interrupts;
+};
+</code>
+    </pre>
+    <h3 id="example-2-remove-pin-assignment">Example 2: Remove Pin Assignment</h3>
+    <pre>
+      <code class="language-dts">&amp;uart3 {
+    /delete-property/ pinctrl-0;
+    /delete-property/ pinctrl-names;
+};
+</code>
+    </pre>
+    <hr />
+    <h2 id="creating-new-nodes">Creating New Nodes</h2>
+    <h3 id="syntax-add-under-root-or-existing-node">Syntax: Add Under Root <code>/</code> or Existing Node</h3>
+    <pre>
+      <code class="language-dts">/ {
+    new_node: node_label {
+        compatible = "vendor,device";
+        property = &lt;value&gt;;
+    };
+};
+</code>
+    </pre>
+    <h3 id="example-1-add-custom-led">Example 1: Add Custom LED</h3>
+    <pre>
+      <code class="language-dts">/ {
+    leds {
+        compatible = "gpio-leds";
+        led0: led_0 {
+            gpios = &lt;&amp;gpioa 5 GPIO_ACTIVE_HIGH&gt;;
+            label = "Green LED";
+        };
+        led1: led_1 {
+            gpios = &lt;&amp;gpiob 14 GPIO_ACTIVE_HIGH&gt;;
+            label = "Red LED";
+        };
+    };
+};
+</code>
+    </pre>
+    <h3 id="example-2-add-button">Example 2: Add Button</h3>
+    <pre>
+      <code class="language-dts">/ {
+    buttons {
+        compatible = "gpio-keys";
+        button0: button_0 {
+            gpios = &lt;&amp;gpioc 13 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)&gt;;
+            label = "User Button";
+        };
+    };
+};
+</code>
+    </pre>
+    <h3 id="example-3-add-child-node-to-existing-peripheral">Example 3: Add Child Node to Existing Peripheral</h3>
+    <pre>
+      <code class="language-dts">&amp;i2c1 {
+    status = "okay";
+    clock-frequency = &lt;I2C_BITRATE_FAST&gt;;
+    
+    sensor: mpu6050@68 {
+        compatible = "invensense,mpu6050";
+        reg = &lt;0x68&gt;;
+        int-gpios = &lt;&amp;gpiob 10 GPIO_ACTIVE_HIGH&gt;;
+    };
+};
+</code>
+    </pre>
+    <hr />
+    <h2 id="working-with-aliases-and-chosen">Working with Aliases and Chosen</h2>
+    <h3 id="aliases">Aliases</h3>
+    <p>Aliases provide convenient names to reference nodes in code.</p>
+    <h4 id="adding-aliases">Adding Aliases</h4>
+    <pre>
+      <code class="language-dts">/ {
+    aliases {
+        led0 = &amp;green_led;
+        sw0 = &amp;user_button;
+        myuart = &amp;uart2;
+        mysensor = &amp;sensor;
+    };
+};
+</code>
+    </pre>
+    <h4 id="accessing-in-c-code">Accessing in C Code</h4>
+    <pre>
+      <code class="language-c">#define LED_NODE DT_ALIAS(led0)
+static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED_NODE, gpios);
+</code>
+    </pre>
+    <h3 id="chosen-nodes">Chosen Nodes</h3>
+    <p>Chosen nodes specify system-level defaults.</p>
+    <h4 id="common-chosen-properties">Common Chosen Properties</h4>
+    <pre>
+      <code class="language-dts">/ {
+    chosen {
+        zephyr,console = &amp;uart0;        // Console output device
+        zephyr,shell-uart = &amp;uart0;     // Shell UART
+        zephyr,bt-uart = &amp;uart1;        // Bluetooth UART
+        zephyr,uart-mcumgr = &amp;uart2;    // MCUmgr UART
+        zephyr,sram = &amp;sram0;           // SRAM region
+        zephyr,flash = &amp;flash0;         // Flash region
+        zephyr,code-partition = &amp;slot0_partition;  // Code storage
+    };
+};
+</code>
+    </pre>
+    <hr />
+    <h2 id="common-property-types">Common Property Types</h2>
+    <h3 id="integer-properties">Integer Properties</h3>
+    <pre>
+      <code class="language-dts">clock-frequency = &lt;48000000&gt;;           // Single value
+reg = &lt;0x40013800 0x400&gt;;              // Address and size
+interrupts = &lt;37 0&gt;;                    // IRQ number and priority
+gpio-reserved-ranges = &lt;0 2&gt;, &lt;15 1&gt;;  // Multiple ranges
+</code>
+    </pre>
+    <h3 id="string-properties">String Properties</h3>
+    <pre>
+      <code class="language-dts">label = "UART_0";
+compatible = "st,stm32-uart";
+status = "okay";  // or "disabled"
+pinctrl-names = "default", "sleep";
+</code>
+    </pre>
+    <h3 id="phandle-properties">Phandle Properties</h3>
+    <pre>
+      <code class="language-dts">clocks = &lt;&amp;rcc STM32_CLOCK_BUS_APB2 0x00004000&gt;;
+gpios = &lt;&amp;gpioa 5 GPIO_ACTIVE_HIGH&gt;;
+dmas = &lt;&amp;dma1 3 0x20440 0x0&gt;;
+</code>
+    </pre>
+    <h3 id="array-properties">Array Properties</h3>
+    <pre>
+      <code class="language-dts">cs-gpios = &lt;&amp;gpioa 4 GPIO_ACTIVE_LOW&gt;,
+           &lt;&amp;gpiob 12 GPIO_ACTIVE_LOW&gt;;
+</code>
+    </pre>
+    <h3 id="boolean-properties">Boolean Properties</h3>
+    <pre>
+      <code class="language-dts">hw-flow-control;  // Present = true
+// Absent = false (just omit the property)
+</code>
+    </pre>
+    <h3 id="byte-strings">Byte Strings</h3>
+    <pre>
+      <code class="language-dts">mac-address = [00 11 22 33 44 55];
+</code>
+    </pre>
+    <hr />
+    <h2 id="practical-examples">Practical Examples</h2>
+    <h3 id="example-1-complete-uart-configuration">Example 1: Complete UART Configuration</h3>
+    <pre>
+      <code class="language-dts">// Enable UART2 with custom settings
+&amp;uart2 {
+    status = "okay";
+    current-speed = &lt;115200&gt;;
+    pinctrl-0 = &lt;&amp;uart2_tx_pa2 &amp;uart2_rx_pa3&gt;;
+    pinctrl-names = "default";
+};
+
+/ {
+    chosen {
+        zephyr,console = &amp;uart2;
+        zephyr,shell-uart = &amp;uart2;
+    };
+    
+    aliases {
+        myuart = &amp;uart2;
+    };
+};
+</code>
+    </pre>
+    <h3 id="example-2-spi-device-with-multiple-slaves">Example 2: SPI Device with Multiple Slaves</h3>
+    <pre>
+      <code class="language-dts">&amp;spi1 {
+    status = "okay";
+    cs-gpios = &lt;&amp;gpioa 4 GPIO_ACTIVE_LOW&gt;,
+               &lt;&amp;gpiob 12 GPIO_ACTIVE_LOW&gt;;
+    
+    spi_device0: spidev@0 {
+        compatible = "vendor,spi-device";
+        reg = &lt;0&gt;;
+        spi-max-frequency = &lt;1000000&gt;;
+    };
+    
+    spi_device1: spidev@1 {
+        compatible = "vendor,spi-device";
+        reg = &lt;1&gt;;
+        spi-max-frequency = &lt;2000000&gt;;
+    };
+};
+</code>
+    </pre>
+    <h3 id="example-3-i2c-bus-with-multiple-sensors">Example 3: I2C Bus with Multiple Sensors</h3>
+    <pre>
+      <code class="language-dts">&amp;i2c1 {
+    status = "okay";
+    clock-frequency = &lt;I2C_BITRATE_FAST&gt;;  // 400kHz
+    
+    temp_sensor: lm75@48 {
+        compatible = "lm75";
+        reg = &lt;0x48&gt;;
+        label = "TEMP_SENSOR";
+    };
+    
+    imu: mpu6050@68 {
+        compatible = "invensense,mpu6050";
+        reg = &lt;0x68&gt;;
+        int-gpios = &lt;&amp;gpiob 10 GPIO_ACTIVE_HIGH&gt;;
+        label = "IMU";
+    };
+};
+
+/ {
+    aliases {
+        temp-sensor = &amp;temp_sensor;
+        imu = &amp;imu;
+    };
+};
+</code>
+    </pre>
+    <h3 id="example-4-pwm-for-motor-control">Example 4: PWM for Motor Control</h3>
+    <pre>
+      <code class="language-dts">&amp;timers3 {
+    status = "okay";
+    
+    pwm3: pwm {
+        status = "okay";
+        pinctrl-0 = &lt;&amp;tim3_ch1_pa6 &amp;tim3_ch2_pa7&gt;;
+        pinctrl-names = "default";
+    };
+};
+
+/ {
+    pwm_motors {
+        compatible = "pwm-leds";
+        motor_left: motor_0 {
+            pwms = &lt;&amp;pwm3 1 PWM_MSEC(20) PWM_POLARITY_NORMAL&gt;;
+            label = "Left Motor";
+        };
+        motor_right: motor_1 {
+            pwms = &lt;&amp;pwm3 2 PWM_MSEC(20) PWM_POLARITY_NORMAL&gt;;
+            label = "Right Motor";
+        };
+    };
+    
+    aliases {
+        motor-left = &amp;motor_left;
+        motor-right = &amp;motor_right;
+    };
+};
+</code>
+    </pre>
+    <h3 id="example-5-disabling-unused-peripherals">Example 5: Disabling Unused Peripherals</h3>
+    <pre>
+      <code class="language-dts">// Disable peripherals to save power
+&amp;usart3 {
+    status = "disabled";
+};
+
+&amp;spi2 {
+    status = "disabled";
+};
+
+&amp;adc1 {
+    status = "disabled";
+};
+
+&amp;can1 {
+    status = "disabled";
+};
+</code>
+    </pre>
+    <h3 id="example-6-memory-partitions">Example 6: Memory Partitions</h3>
+    <pre>
+      <code class="language-dts">&amp;flash0 {
+    partitions {
+        compatible = "fixed-partitions";
+        #address-cells = &lt;1&gt;;
+        #size-cells = &lt;1&gt;;
+        
+        boot_partition: partition@0 {
+            label = "mcuboot";
+            reg = &lt;0x00000000 0x00010000&gt;;
+        };
+        
+        slot0_partition: partition@10000 {
+            label = "image-0";
+            reg = &lt;0x00010000 0x00070000&gt;;
+        };
+        
+        slot1_partition: partition@80000 {
+            label = "image-1";
+            reg = &lt;0x00080000 0x00070000&gt;;
+        };
+        
+        storage_partition: partition@f0000 {
+            label = "storage";
+            reg = &lt;0x000f0000 0x00010000&gt;;
+        };
+    };
+};
+
+/ {
+    chosen {
+        zephyr,code-partition = &amp;slot0_partition;
+    };
+};
+</code>
+    </pre>
+    <hr />
+    <h2 id="best-practices">Best Practices</h2>
+    <h3 id="keep-overlays-organized">1. <strong>Keep Overlays Organized</strong></h3>
+    <pre>
+      <code class="language-dts">// Group related configurations together
+// 1. Peripheral configurations
+&amp;uart0 { ... };
+&amp;i2c1 { ... };
+&amp;spi1 { ... };
+
+// 2. New node definitions
+/ {
+    leds { ... };
+    buttons { ... };
+};
+
+// 3. Aliases and chosen
+/ {
+    aliases { ... };
+    chosen { ... };
+};
+</code>
+    </pre>
+    <h3 id="use-comments">2. <strong>Use Comments</strong></h3>
+    <pre>
+      <code class="language-dts">// UART0 configuration for console output
+&amp;uart0 {
+    current-speed = &lt;115200&gt;;  // Standard baud rate
+    status = "okay";            // Enable the peripheral
+};
+</code>
+    </pre>
+    <h3 id="reference-board-files">3. <strong>Reference Board Files</strong></h3>
+    <p>Check your board's default devicetree:</p>
+    <pre>
+      <code class="language-bash"># Find your board's DTS file
+find $ZEPHYR_BASE/boards -name "*.dts" | grep your_board
+
+# View the file
+cat $ZEPHYR_BASE/boards/vendor/board/board.dts
+</code>
+    </pre>
+    <h3 id="validate-your-overlay">4. <strong>Validate Your Overlay</strong></h3>
+    <pre>
+      <code class="language-bash"># Build to check for errors
+west build -b your_board
+
+# View generated devicetree
+cat build/zephyr/zephyr.dts
+</code>
+    </pre>
+    <h3 id="use-devicetree-macros-in-code">5. <strong>Use Devicetree Macros in Code</strong></h3>
+    <pre>
+      <code class="language-c">// Access nodes safely
+#if DT_NODE_EXISTS(DT_ALIAS(led0))
+    #define LED_NODE DT_ALIAS(led0)
+    static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED_NODE, gpios);
+#else
+    #error "led0 alias not found"
+#endif
+</code>
+    </pre>
+    <h3 id="common-pitfalls-to-avoid">6. <strong>Common Pitfalls to Avoid</strong></h3>
+    <ul>
+      <li>❌ Forgetting semicolons at the end of properties</li>
+      <li>❌ Using wrong reference syntax (use <code>&amp;label</code>, not <code>label</code>)</li>
+      <li>❌ Misspelling property names (devicetree is case-sensitive)</li>
+      <li>❌ Not enabling parent nodes (e.g., enable I2C bus before adding devices)</li>
+      <li>❌ Incorrect phandle syntax (use <code>&lt;&amp;node ...&gt;</code>, not <code>&amp;node</code>)</li>
+    </ul>
+    <hr />
+    <h2 id="quick-reference-card">Quick Reference Card</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Task</th>
+          <th>Syntax</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Modify property</td>
+          <td>
+            <code>&amp;node { property = &lt;value&gt;; };</code>
+          </td>
+        </tr>
+        <tr>
+          <td>Add property</td>
+          <td>Same as modify</td>
+        </tr>
+        <tr>
+          <td>Delete property</td>
+          <td>
+            <code>&amp;node { /delete-property/ prop; };</code>
+          </td>
+        </tr>
+        <tr>
+          <td>Create node</td>
+          <td>
+            <code>/ { new_node { ... }; };</code>
+          </td>
+        </tr>
+        <tr>
+          <td>Add alias</td>
+          <td>
+            <code>/ { aliases { name = &amp;node; }; };</code>
+          </td>
+        </tr>
+        <tr>
+          <td>Set chosen</td>
+          <td>
+            <code>/ { chosen { zephyr,console = &amp;uart0; }; };</code>
+          </td>
+        </tr>
+        <tr>
+          <td>Enable peripheral</td>
+          <td>
+            <code>&amp;node { status = "okay"; };</code>
+          </td>
+        </tr>
+        <tr>
+          <td>Disable peripheral</td>
+          <td>
+            <code>&amp;node { status = "disabled"; };</code>
+          </td>
+        </tr>
+        <tr>
+          <td>Reference GPIO</td>
+          <td>
+            <code>gpios = &lt;&amp;port pin flags&gt;;</code>
+          </td>
+        </tr>
+        <tr>
+          <td>Reference clock</td>
+          <td>
+            <code>clocks = &lt;&amp;rcc BUS ENABLE_BIT&gt;;</code>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <hr />
+    <h2 id="additional-resources">Additional Resources</h2>
+    <ul>
+      <li>
+        <strong>Zephyr Devicetree Guide</strong>: <a href="https://docs.zephyrproject.org/latest/build/dts/index.html">https://docs.zephyrproject.org/latest/build/dts/index.html</a></li>
+      <li>
+        <strong>Devicetree Spec</strong>: <a href="https://www.devicetree.org/specifications/">https://www.devicetree.org/specifications/</a></li>
+      <li>
+        <strong>Zephyr Bindings</strong>: <code>$ZEPHYR_BASE/dts/bindings/</code></li>
+      <li>
+        <strong>Board DTS Files</strong>: <code>$ZEPHYR_BASE/boards/</code></li>
+    </ul>
+    <hr />
+    <p>
+      <strong>Author</strong>: GitHub Copilot<br /><strong>Last Updated</strong>: December 4, 2025<br /><strong>Version</strong>: 1.0<br /><strong>License</strong>: Feel free to use and share this guide</p>
+  </body>
+</html>
