@@ -1,3 +1,6 @@
+&usart1 {
+    current-speed = <9600>;
+};
 / {
     aliases {
         led1 = &red_led_4;
