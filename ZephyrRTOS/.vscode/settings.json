@@ -1,3 +1,9 @@
 {
     "cmake.sourceDirectory": "${workspaceFolder}/apps/1_blinky",
+    "cortex-debug.variableUseNaturalFormat": false,
+    "debug.allowBreakpointsEverywhere": true,
+    "debug.disassemblyView.showSourceCode": true,
+    "debug.inlineValues": "auto",
+    "debug.console.wordWrap": true,
+    "mcu-debug.rtos-views.showRTOS": true
 }

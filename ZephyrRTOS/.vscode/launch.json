@@ -15,7 +15,7 @@
             "gdbTarget": "localhost:3333",
             "showDevDebugTimestamps": true,
             "debuggerArgs": ["-q", "--interpreter=mi2"],
-            "gdbPath": "arm-none-eabi-gdb.exe",
+            "gdbPath": "arm-zephyr-eabi-gdb.exe",
             // "gdbPath": "D:/zephyr-3.6.0/zephyr-sdk-0.16.8/arm-zephyr-eabi/bin/arm-zephyr-eabi-gdb.exe",
             "configFiles": [
                 "interface/stlink.cfg",
@@ -31,8 +31,9 @@
             "runToEntryPoint": "main",
             "breakAfterReset": true,
             "numberOfProcessors": 1,
+            "svdFile": "${workspaceFolder}/STM32F429.svd"
             // "objdumpPath": "D:/zephyr-3.6.0/zephyr-sdk-0.16.8/arm-zephyr-eabi/bin/arm-zephyr-eabi-objdump.exe",
-            "postDebugTask": "Stop OpenOCD Server"
+            // "postDebugTask": "Stop OpenOCD Server"
         },
         {
             "cwd": "${workspaceFolder}",
