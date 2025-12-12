@@ -1,0 +1,22 @@
+&usart1 {
+    current-speed = <9600>;
+};
+&red_led_4 {
+    gpios = <&gpiog 14 GPIO_ACTIVE_LOW>;
+};
+/ {
+    aliases {
+        led1 = &red_led_4;
+        led2 = &custom_led1;
+    };
+
+    leds {
+        compatible = "gpio-leds";        
+
+        custom_led1: custom_led1 {
+            label = "External LED1";
+            gpios = <&gpioa 4 0>;
+        };        
+    };
+
+};
