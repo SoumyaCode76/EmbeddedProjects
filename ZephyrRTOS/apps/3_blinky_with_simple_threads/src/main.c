@@ -13,6 +13,7 @@
 #define LED1_NODE DT_ALIAS(led1)
 #define MYLED     DT_ALIAS(led2)
 
+
 static const struct gpio_dt_spec led_1 = GPIO_DT_SPEC_GET(LED0_NODE, gpios);
 static const struct gpio_dt_spec led_2 = GPIO_DT_SPEC_GET(LED1_NODE, gpios);
 static const struct gpio_dt_spec myled = GPIO_DT_SPEC_GET(MYLED, gpios);
@@ -54,7 +55,7 @@ static void thread_2(void * arg1, void *arg2, void *arg3)
 
         printk("Toggled Off-board LED\n");
         printk("Off-board LED %d\n", gpio_pin_get_dt(&myled));        
-        k_msleep(500);
+        k_msleep(200);
     }
 }
 

@@ -1,0 +1,45 @@
+# GDB initialization file for Zephyr debugging
+# This file defines custom commands for debugging convenience
+
+# Define addr2line command for converting addresses to source locations
+define addr2line
+  if $argc == 0
+    echo Usage: addr2line <address>\n
+  else
+    shell arm-none-eabi-addr2line -e build/zephyr/zephyr.elf $arg0
+  end
+end
+
+document addr2line
+Convert a memory address to source file and line number.
+Usage: addr2line <address>
+Example: addr2line 0x800354f
+end
+
+# Define addr2line for zephyr toolchain
+define addr2line-zephyr
+  if $argc == 0
+    echo Usage: addr2line-zephyr <address>\n
+  else
+    shell arm-zephyr-eabi-addr2line -e build/zephyr/zephyr.elf $arg0
+  end
+end
+
+document addr2line-zephyr
+Convert a memory address to source file and line number using Zephyr toolchain.
+Usage: addr2line-zephyr <address>
+Example: addr2line-zephyr 0x800354f
+end
+
+# Set output formatting
+set print pretty on
+set print array on
+set print array-indexes on
+
+# Enable history
+set history save on
+set history size 10000
+set history filename ~/.gdb_history
+
+# Show thread info on stops
+set print thread-events on

@@ -20,7 +20,9 @@ endif()
 #2. Locate Zephyr build system as a CMake module
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 #3. Name your project
-project(blinky)
+project(Testing_IRQ)
 #4. Tell Zephyr which source files to use
-target_sources(app PRIVATE src/main.c)
-#5. Set properties for the executable target 'app'
+target_sources(app PRIVATE src/main.c src/queue.c)
+#5. Add include directories
+target_include_directories(app PRIVATE inc)
+#6. Set properties for the executable target 'app'

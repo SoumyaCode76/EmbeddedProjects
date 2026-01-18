@@ -3,7 +3,7 @@
     "configurations": [
         {
             "cwd": "${workspaceFolder}",
-            "executable": "${workspaceFolder}/apps/6_isr_uart/build/zephyr/zephyr.elf",
+            "executable": "${workspaceFolder}/5_isr/build/zephyr/zephyr.elf",
             "name": "Debug STM32F429ZI with OpenOCD",
             "request": "launch",
             "type": "cortex-debug",

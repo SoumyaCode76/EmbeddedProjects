@@ -1,8 +1,9 @@
-&usart2 {
+&uart0 {
     current-speed = <9600>;
 };
 / {
     aliases {
+        led0 = &custom_led0;
         led1 = &custom_led1;
         led2 = &custom_led2;
     };
@@ -10,13 +11,18 @@
     leds {
         compatible = "gpio-leds";        
 
+        custom_led0: custom_led0 {
+            label = "External LED0";
+            gpios = <&gpio0 2 0>;
+        };
+
         custom_led1: custom_led1 {
             label = "External LED1";
-            gpios = <&gpioa 4 0>;
+            gpios = <&gpio0 4 0>;
         };        
         custom_led2: custom_led2 {
             label = "External LED2";
-            gpios = <&gpioa 6 0>;
+            gpios = <&gpio0 6 0>;
         };        
     };
 };

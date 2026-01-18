@@ -1,6 +1,6 @@
 {
     "cmake.sourceDirectory": "${workspaceFolder}/apps/1_blinky",
-    "cortex-debug.variableUseNaturalFormat": false,
+    "cortex-debug.variableUseNaturalFormat": true,
     "debug.allowBreakpointsEverywhere": true,
     "debug.disassemblyView.showSourceCode": true,
     "debug.inlineValues": "auto",
