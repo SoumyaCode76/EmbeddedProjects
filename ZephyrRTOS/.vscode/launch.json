@@ -3,7 +3,7 @@
     "configurations": [
         {
             "cwd": "${workspaceFolder}",
-            "executable": "${workspaceFolder}/apps/6_isr_uart/build/zephyr/zephyr.elf",
+            "executable": "${workspaceFolder}/apps/5_isr/build/zephyr/zephyr.elf",
             "name": "Debug STM32F429ZI with OpenOCD",
             "request": "launch",
             "type": "cortex-debug",
@@ -22,7 +22,21 @@
             ],
             "postLaunchCommands": [
                 "monitor reset halt"
-            ]
+            ],
+            "swoConfig": {
+                "enabled": true,
+                "cpuFrequency": 180000000,
+                "swoFrequency": 2000000,
+                "source": "socket",
+                "swoPort": "6666",
+                "decoders": [
+                    {
+                        "type": "console",
+                        "label": "Button State",
+                        "port": 0
+                    }
+                ]
+            }
         },
         {
             "cwd": "${workspaceFolder}",
