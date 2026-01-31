@@ -5,6 +5,9 @@ const struct gpio_dt_spec button = GPIO_DT_SPEC_GET(BUTTON_NODE, gpios);
 const struct gpio_dt_spec led_green = GPIO_DT_SPEC_GET(LEDG_NODE, gpios);
 const struct gpio_dt_spec led_red = GPIO_DT_SPEC_GET(LEDR_NODE, gpios);
 
+volatile button_state_t btn_evt_detected = {0};
+volatile uint8_t led_state = 0;
+
 int main(void)
 {
     /* Configure the GPIO pins with direction and initial values */
@@ -21,9 +24,9 @@ int main(void)
 
 
     printk("Set up button at %s pin %d\n", button.port->name, button.pin);
-    button_state_t btn_evt_detected = {0};
     uint32_t pressed_timestamp = 0;
     uint32_t released_timestamp = 0;
+    uint32_t first_time = 0;
 
     while (1)
     {
@@ -35,28 +38,41 @@ int main(void)
         {
             if(btn_evt_detected.state == 1)
             {
-                printk("Button pressed at: %d\n", btn_evt_detected.timestamp);
+                // printk("Button pressed at: %d\n", btn_evt_detected.timestamp);
                 pressed_timestamp = btn_evt_detected.timestamp;
             }
             else
             {
-                printk("Button released at: %d\n", btn_evt_detected.timestamp);
+                // printk("Button released at: %d\n", btn_evt_detected.timestamp);
                 released_timestamp = btn_evt_detected.timestamp;
             }
 
             if(abs(released_timestamp - pressed_timestamp) > BUTTON_DEBOUNCE_TIME_MS)
             {
-                gpio_pin_set(led_green.port, led_green.pin, btn_evt_detected.state);
-            }
-            else if(abs(released_timestamp - pressed_timestamp) > (2 * BUTTON_DEBOUNCE_TIME_MS))
-            {
-                __NVIC_SystemReset();
-            }
+                led_state = btn_evt_detected.state;
+                gpio_pin_set(led_green.port, led_green.pin, led_state);
+                if(abs(released_timestamp - pressed_timestamp) > (5 * BUTTON_DEBOUNCE_TIME_MS))
+                {
+                    if(first_time == 0)
+                    {
+                        first_time = 1;
+                    }
+                    else
+                    {
+                        printk("Long press detected! Resetting MCU...\n\n");
+                        __NVIC_SystemReset();
+                    }
+                }
+                else
+                {
+                    printk("Short press detected\n");
+                }
+            } 
         }
         else
         {
-            gpio_pin_toggle(led_red.port, led_red.pin);
-            k_msleep(100);
+            // gpio_pin_toggle(led_red.port, led_red.pin);
+            // k_msleep(100);
         }        
     }
     return 0;
