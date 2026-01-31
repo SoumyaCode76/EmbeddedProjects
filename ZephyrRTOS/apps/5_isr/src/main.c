@@ -30,20 +30,14 @@ int main(void)
 
     while (1)
     {
-/*         int val = gpio_pin_get(button.port, button.pin);
-        gpio_pin_set(led_green.port, led_green.pin, val);
-        gpio_pin_set(led_red.port, led_red.pin, !val); */
-
         if(k_msgq_get(&button_evt, &btn_evt_detected, K_NO_WAIT) == 0)
         {
             if(btn_evt_detected.state == 1)
             {
-                // printk("Button pressed at: %d\n", btn_evt_detected.timestamp);
                 pressed_timestamp = btn_evt_detected.timestamp;
             }
             else
             {
-                // printk("Button released at: %d\n", btn_evt_detected.timestamp);
                 released_timestamp = btn_evt_detected.timestamp;
             }
 
@@ -69,11 +63,6 @@ int main(void)
                 }
             } 
         }
-        else
-        {
-            // gpio_pin_toggle(led_red.port, led_red.pin);
-            // k_msleep(100);
-        }        
     }
     return 0;
 }
@@ -84,16 +73,4 @@ void button_pressed_isr(const struct device *udev, struct gpio_callback *cb, uin
     btn_event.timestamp = k_uptime_get_32();
     btn_event.state = gpio_pin_get(button.port, button.pin);
     k_msgq_put(&button_evt, &btn_event, K_NO_WAIT);
-/*     static uint32_t last_btn_press_detected = 0;
-    static button_state_t btn_pressed = {0};
-    uint32_t current_sys_cycle = k_uptime_get_32();
-    if (current_sys_cycle < last_btn_press_detected)
-    {
-        last_btn_press_detected = 0;
-    }
-    if ((current_sys_cycle - last_btn_press_detected) > BUTTON_DEBOUNCE_TIME_MS)
-    {
-        last_btn_press_detected = current_sys_cycle;
-	    
-    } */
 }
