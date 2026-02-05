@@ -9,7 +9,9 @@
                 "-f",
                 "interface/stlink.cfg",
                 "-f",
-                "target/stm32f4x.cfg"
+                "target/stm32f4x.cfg",
+                "-c",
+                "telnet_port 4445"
             ],
             "group": "build",
             "presentation": {

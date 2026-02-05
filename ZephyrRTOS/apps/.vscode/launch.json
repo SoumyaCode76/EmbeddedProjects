@@ -3,7 +3,7 @@
     "configurations": [
         {
             "cwd": "${workspaceFolder}",
-            "executable": "${workspaceFolder}/watchdog_lib_sample/build/zephyr/zephyr.elf",
+            "executable": "${workspaceFolder}/8_async_uart/build/zephyr/zephyr.elf",
             "name": "Debug STM32F429ZI with OpenOCD",
             "request": "launch",
             "type": "cortex-debug",
@@ -22,7 +22,11 @@
             ],
             "postLaunchCommands": [
                 "monitor reset halt"
-            ]
+            ],
+            "liveWatch": {
+                "enabled": true,
+                "samplesPerSecond": 4
+            }
         },
         {
             "cwd": "${workspaceFolder}",
@@ -46,7 +50,11 @@
             "interface": "swd",
             "runToEntryPoint": "main",
             "breakAfterReset": true,
-            "objdumpPath": "D:/zephyr-3.6.0/zephyr-sdk-0.16.8/arm-zephyr-eabi/bin/arm-zephyr-eabi-objdump.exe"
+            "objdumpPath": "D:/zephyr-3.6.0/zephyr-sdk-0.16.8/arm-zephyr-eabi/bin/arm-zephyr-eabi-objdump.exe",
+            "liveWatch": {
+                "enabled": true,
+                "samplesPerSecond": 4
+            }
         },
         {
             "name": "Zazu",
@@ -58,7 +66,11 @@
             "gdbPath": "d:\\Program Files (x86)\\GNU Arm Embedded Toolchain\\10 2021.10\\bin\\arm-none-eabi-gdb.exe",
             "executable": "d:\\Users\\soumy\\GitHub\\Learn_embedded_software_dev\\EmbeddedProjects\\ZephyrRTOS\\apps\\3_blinky_with_simple_threads\\build\\zephyr\\zephyr.elf",
             "preLaunchTask": "Run Zazu",
-            "runToEntryPoint": "main"
+            "runToEntryPoint": "main",
+            "liveWatch": {
+                "enabled": true,
+                "samplesPerSecond": 4
+            }
         }
     ]
 }

@@ -7,6 +7,7 @@ const struct gpio_dt_spec led_red = GPIO_DT_SPEC_GET(LEDR_NODE, gpios);
 
 volatile button_state_t btn_evt_detected = {0};
 volatile uint8_t led_state = 0;
+volatile uint8_t reset_requested = 0;
 
 int main(void)
 {
@@ -54,6 +55,8 @@ int main(void)
                     else
                     {
                         printk("Long press detected! Resetting MCU...\n\n");
+                        reset_requested = 1;
+                        gpio_pin_set(led_red.port, led_red.pin, reset_requested);
                         __NVIC_SystemReset();
                     }
                 }
@@ -70,7 +73,9 @@ int main(void)
 void button_pressed_isr(const struct device *udev, struct gpio_callback *cb, uint32_t pins)
 {
     static button_state_t btn_event = {0};
+    gpio_pin_set(led_red.port, led_red.pin, 1);
     btn_event.timestamp = k_uptime_get_32();
     btn_event.state = gpio_pin_get(button.port, button.pin);
     k_msgq_put(&button_evt, &btn_event, K_NO_WAIT);
+    gpio_pin_set(led_red.port, led_red.pin, 0);
 }
