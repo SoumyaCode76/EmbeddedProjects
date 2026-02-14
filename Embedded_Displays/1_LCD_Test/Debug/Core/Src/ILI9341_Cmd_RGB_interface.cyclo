@@ -1,0 +1,7 @@
+../Core/Src/ILI9341_Cmd_RGB_interface.c:15:13:delay_50ms	1
+../Core/Src/ILI9341_Cmd_RGB_interface.c:25:6:LCD_Pin_Config	1
+../Core/Src/ILI9341_Cmd_RGB_interface.c:75:6:LCD_Pin_Init	1
+../Core/Src/ILI9341_Cmd_RGB_interface.c:87:6:LCD_Write_Cmd	3
+../Core/Src/ILI9341_Cmd_RGB_interface.c:104:6:LCD_Write_Data	2
+../Core/Src/ILI9341_Cmd_RGB_interface.c:115:6:LCD_Read_Data	1
+../Core/Src/ILI9341_Cmd_RGB_interface.c:133:6:LCD_Config	1

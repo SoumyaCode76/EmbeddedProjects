@@ -1,0 +1,35 @@
+11:16:25 **** Incremental Build of configuration Debug for project 1_LCD_Test ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/ILI9341_Cmd_RGB_interface.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F429xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/ILI9341_Cmd_RGB_interface.d" -MT"Core/Src/ILI9341_Cmd_RGB_interface.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/ILI9341_Cmd_RGB_interface.o"
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F429xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+../Core/Src/main.c: In function '__io_putchar':
+../Core/Src/main.c:208:1: warning: control reaches end of non-void function [-Wreturn-type]
+  208 | }
+      | ^
+../Core/Src/ILI9341_Cmd_RGB_interface.c: In function 'LCD_Pin_Config':
+../Core/Src/ILI9341_Cmd_RGB_interface.c:35:9: warning: implicit declaration of function 'memset' [-Wimplicit-function-declaration]
+   35 |         memset((void *)&LCD_Pins_Init, 0, sizeof(GPIO_InitTypeDef));
+      |         ^~~~~~
+../Core/Src/ILI9341_Cmd_RGB_interface.c:14:1: note: include '<string.h>' or provide a declaration of 'memset'
+   13 | #include <stdlib.h>
+  +++ |+#include <string.h>
+   14 | 
+../Core/Src/ILI9341_Cmd_RGB_interface.c:35:9: warning: incompatible implicit declaration of built-in function 'memset' [-Wbuiltin-declaration-mismatch]
+   35 |         memset((void *)&LCD_Pins_Init, 0, sizeof(GPIO_InitTypeDef));
+      |         ^~~~~~
+../Core/Src/ILI9341_Cmd_RGB_interface.c:35:9: note: include '<string.h>' or provide a declaration of 'memset'
+arm-none-eabi-gcc -o "1_LCD_Test.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\Users\soumy\GitHub\Learn_embedded_software_dev\EmbeddedProjects\Embedded_Displays\1_LCD_Test\STM32F429ZITX_FLASH.ld" --specs=nosys.specs -Wl,-Map="1_LCD_Test.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+D:/ST/STM32CubeIDE_1.9.0/STM32CubeIDE/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.13.3.rel1.win32_1.0.100.202509120712/tools/bin/../lib/gcc/arm-none-eabi/13.3.1/../../../../arm-none-eabi/bin/ld.exe: warning: 1_LCD_Test.elf has a LOAD segment with RWX permissions
+Finished building target: 1_LCD_Test.elf
+ 
+arm-none-eabi-size  1_LCD_Test.elf 
+arm-none-eabi-objdump -h -S 1_LCD_Test.elf  > "1_LCD_Test.list"
+   text	   data	    bss	    dec	    hex	filename
+  12184	    112	   2064	  14360	   3818	1_LCD_Test.elf
+Finished building: default.size.stdout
+ 
+Finished building: 1_LCD_Test.list
+ 
+
+11:16:37 Build Finished. 0 errors, 4 warnings. (took 11s.459ms)
+

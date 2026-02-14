@@ -1,0 +1,32 @@
+2026-02-12 12:57:41,697 [ERROR] LogOutputStream:75 - [STDERR_REDIRECT] 
+2026-02-12 22:40:55,410 [INFO] Activator:176 - 
+
+
+2026-02-12 22:40:55,412 [INFO] Activator:177 - !SESSION log4j initialized
+2026-02-12 22:41:26,740 [INFO] LogOutputStream:77 - [STDOUT_REDIRECT] 
+2026-02-12 22:42:05,030 [ERROR] LogOutputStream:75 - [STDERR_REDIRECT] Feb 12, 2026 10:42:04 PM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+2026-02-12 22:42:05,031 [ERROR] LogOutputStream:75 - [STDERR_REDIRECT] WARNING: Unsupported notification method: statusNotification
+2026-02-12 22:42:05,031 [ERROR] LogOutputStream:75 - [STDERR_REDIRECT] 
+2026-02-12 22:42:05,033 [ERROR] LogOutputStream:75 - [STDERR_REDIRECT] Feb 12, 2026 10:42:05 PM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+2026-02-12 22:42:05,056 [ERROR] LogOutputStream:75 - [STDERR_REDIRECT] WARNING: Unsupported notification method: didChangeStatus
+2026-02-12 22:42:05,056 [ERROR] LogOutputStream:75 - [STDERR_REDIRECT] 
+2026-02-12 22:42:05,180 [ERROR] LogOutputStream:75 - [STDERR_REDIRECT] Feb 12, 2026 10:42:05 PM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+2026-02-12 22:42:05,181 [ERROR] LogOutputStream:75 - [STDERR_REDIRECT] WARNING: Unsupported notification method: conversation/preconditionsNotification
+2026-02-12 22:42:05,181 [ERROR] LogOutputStream:75 - [STDERR_REDIRECT] 
+2026-02-12 22:42:08,790 [ERROR] LogOutputStream:75 - [STDERR_REDIRECT] Warning: NLS missing message: customModes_disabled_by_policy in: com.microsoft.copilot.eclipse.ui.preferences.messages
+2026-02-12 23:30:55,367 [ERROR] LogOutputStream:75 - [STDERR_REDIRECT] 
+2026-02-12 23:46:36,681 [INFO] Activator:176 - 
+
+
+2026-02-12 23:46:36,706 [INFO] Activator:177 - !SESSION log4j initialized
+2026-02-12 23:47:08,907 [INFO] LogOutputStream:77 - [STDOUT_REDIRECT] 
+2026-02-12 23:48:09,460 [ERROR] LogOutputStream:75 - [STDERR_REDIRECT] Feb 12, 2026 11:48:08 PM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+2026-02-12 23:48:09,464 [ERROR] LogOutputStream:75 - [STDERR_REDIRECT] WARNING: Unsupported notification method: statusNotification
+2026-02-12 23:48:09,465 [ERROR] LogOutputStream:75 - [STDERR_REDIRECT] 
+2026-02-12 23:48:09,466 [ERROR] LogOutputStream:75 - [STDERR_REDIRECT] Feb 12, 2026 11:48:09 PM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+2026-02-12 23:48:09,467 [ERROR] LogOutputStream:75 - [STDERR_REDIRECT] WARNING: Unsupported notification method: didChangeStatus
+2026-02-12 23:48:09,468 [ERROR] LogOutputStream:75 - [STDERR_REDIRECT] 
+2026-02-12 23:48:09,638 [ERROR] LogOutputStream:75 - [STDERR_REDIRECT] Feb 12, 2026 11:48:09 PM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+2026-02-12 23:48:09,639 [ERROR] LogOutputStream:75 - [STDERR_REDIRECT] WARNING: Unsupported notification method: conversation/preconditionsNotification
+2026-02-12 23:48:09,640 [ERROR] LogOutputStream:75 - [STDERR_REDIRECT] 
+2026-02-12 23:48:15,464 [ERROR] LogOutputStream:75 - [STDERR_REDIRECT] Warning: NLS missing message: customModes_disabled_by_policy in: com.microsoft.copilot.eclipse.ui.preferences.messages
