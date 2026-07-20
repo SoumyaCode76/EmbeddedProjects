@@ -27,7 +27,7 @@ int main(void)
 	uart_string_print("\nApplication running\n");
 	led_init();
 	led_on(LD3);
-//	for(;;);
+	for(;;);
 }
 
 void HardFault_Handler(void)
