@@ -1,0 +1,6 @@
+../Support/uart.c:3:6:uart_init	4	static
+../Support/uart.c:25:6:uart_deinit	4	static
+../Support/uart.c:34:6:uart_send	24	static
+../Support/uart.c:44:6:uart_string_print	24	static
+../Support/uart.c:57:6:uart_receive	24	static
+../Support/uart.c:67:5:__io_putchar	16	static

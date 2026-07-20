@@ -1,0 +1,6 @@
+../Support/uart.c:3:6:uart_init	1
+../Support/uart.c:25:6:uart_deinit	1
+../Support/uart.c:34:6:uart_send	3
+../Support/uart.c:44:6:uart_string_print	3
+../Support/uart.c:57:6:uart_receive	3
+../Support/uart.c:67:5:__io_putchar	1

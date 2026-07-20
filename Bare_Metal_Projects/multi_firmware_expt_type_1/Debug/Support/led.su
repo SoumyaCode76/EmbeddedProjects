@@ -1,0 +1,3 @@
+../Support/led.c:3:6:led_init	4	static
+../Support/led.c:51:6:led_on	16	static
+../Support/led.c:79:6:led_off	16	static
