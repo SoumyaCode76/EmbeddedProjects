@@ -1,2 +1,5 @@
-../Src/main.c:22:5:main	8	static
-../Src/main.c:33:6:HardFault_Handler	8	static
+D:/Users/soumy/GitHub/Learn_embedded_software_dev/EmbeddedProjects/Bare_Metal_Projects/multi_firmware_expt_application/chip_headers/CMSIS/Core/Include/core_cm4.h:1688:22:__NVIC_EnableIRQ	16	static
+D:/Users/soumy/GitHub/Learn_embedded_software_dev/EmbeddedProjects/Bare_Metal_Projects/multi_firmware_expt_application/chip_headers/CMSIS/Core/Include/core_cm4.h:1762:22:__NVIC_SetPendingIRQ	16	static
+../Src/main.c:25:5:main	8	static,ignoring_inline_asm
+../Src/main.c:40:6:HardFault_Handler	8	static
+../Src/main.c:46:6:USART1_IRQHandler	8	static

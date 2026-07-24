@@ -19,14 +19,21 @@
 #include "common.h"
 #include "bsp.h"
 
+typedef void (*dummy)(void);
+dummy DummyFcn = (dummy)((uint32_t)0xE0001003);
+
 int main(void)
 {
     /* Loop forever */
+	__enable_irq();
+	__enable_fault_irq();
 	uart_init();
 	uart_string_print(BOARD_NAME);
 	uart_string_print("\nApplication running\n");
 	led_init();
 	led_on(LD3);
+	NVIC_EnableIRQ(USART1_IRQn);
+	NVIC_SetPendingIRQ(USART1_IRQn);
 	for(;;);
 }
 
@@ -35,3 +42,9 @@ void HardFault_Handler(void)
 	uart_string_print("Application HardFault handler\n");
 	led_on(LD4);
 }
+
+void USART1_IRQHandler(void)
+{
+	uart_string_print("[APP]: Running USART1_IRQHandler\n");
+}
+

@@ -46,8 +46,9 @@ _Min_Stack_Size = 0x400; /* required amount of stack */
 MEMORY
 {
   CCMRAM    (xrw)    : ORIGIN = 0x10000000,   LENGTH = 64K
-  RAM    (xrw)    : ORIGIN = 0x20000000,   LENGTH = 128K
+  RAM    (xrw)    : ORIGIN = 0x20000000,   LENGTH = 108K
   FLASH    (rx)    : ORIGIN = 0x8010000,   LENGTH = 768K
+  APPRAM	(rx)	: ORIGIN = 0x2001B100, LENGTH = 0x4F00
 }
 
 /* Sections */
@@ -59,7 +60,7 @@ SECTIONS
     . = ALIGN(4);
     KEEP(*(.isr_vector)) /* Startup code */
     . = ALIGN(4);
-  } >FLASH
+  } >APPRAM
 
   /* The program code and other data into "FLASH" Rom type memory */
   .text :
@@ -76,7 +77,7 @@ SECTIONS
 
     . = ALIGN(4);
     _etext = .;        /* define a global symbols at end of code */
-  } >FLASH
+  } >APPRAM
 
   /* Constant data into "FLASH" Rom type memory */
   .rodata :
@@ -85,13 +86,13 @@ SECTIONS
     *(.rodata)         /* .rodata sections (constants, strings, etc.) */
     *(.rodata*)        /* .rodata* sections (constants, strings, etc.) */
     . = ALIGN(4);
-  } >FLASH
+  } >APPRAM
 
   .ARM.extab   : {
     . = ALIGN(4);
     *(.ARM.extab* .gnu.linkonce.armextab.*)
     . = ALIGN(4);
-  } >FLASH
+  } >APPRAM
 
   .ARM : {
     . = ALIGN(4);
@@ -99,7 +100,7 @@ SECTIONS
     *(.ARM.exidx*)
     __exidx_end = .;
     . = ALIGN(4);
-  } >FLASH
+  } >APPRAM
 
   .preinit_array     :
   {
@@ -108,7 +109,7 @@ SECTIONS
     KEEP (*(.preinit_array*))
     PROVIDE_HIDDEN (__preinit_array_end = .);
     . = ALIGN(4);
-  } >FLASH
+  } >APPRAM
 
   .init_array :
   {
@@ -118,7 +119,7 @@ SECTIONS
     KEEP (*(.init_array*))
     PROVIDE_HIDDEN (__init_array_end = .);
     . = ALIGN(4);
-  } >FLASH
+  } >APPRAM
 
   .fini_array :
   {
@@ -128,7 +129,7 @@ SECTIONS
     KEEP (*(.fini_array*))
     PROVIDE_HIDDEN (__fini_array_end = .);
     . = ALIGN(4);
-  } >FLASH
+  } >APPRAM
 
   /* Used by the startup to initialize data */
   _sidata = LOADADDR(.data);

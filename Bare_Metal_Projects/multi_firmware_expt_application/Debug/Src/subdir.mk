@@ -22,7 +22,7 @@ C_DEPS += \
 
 # Each subdirectory must supply rules for building sources it contributes
 Src/%.o Src/%.su Src/%.cyclo: ../Src/%.c Src/subdir.mk
-	arm-none-eabi-gcc "$<" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F401RE -DSTM32 -DSTM32F401RETx -DSTM32F4 -DSTM32F407xx -c -I../Inc -I"D:/Users/soumy/GitHub/Learn_embedded_software_dev/EmbeddedProjects/Bare_Metal_Projects/multi_firmware_expt_type_1/Support" -I"D:/Users/soumy/GitHub/Learn_embedded_software_dev/EmbeddedProjects/Bare_Metal_Projects/multi_firmware_expt_application/chip_headers/CMSIS/Core/Include" -I"D:/Users/soumy/GitHub/Learn_embedded_software_dev/EmbeddedProjects/Bare_Metal_Projects/multi_firmware_expt_application/chip_headers/CMSIS/Device/ST/STM32F4xx/Include" -O0 -ffunction-sections -fdata-sections -Wall -Wextra -Werror -pedantic -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "$@"
+	arm-none-eabi-gcc "$<" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F401RE -DSTM32 -DSTM32F401RETx -DSTM32F4 -DSTM32F407xx -c -I../Inc -I"D:/Users/soumy/GitHub/Learn_embedded_software_dev/EmbeddedProjects/Bare_Metal_Projects/multi_firmware_expt_type_1/Support" -I"D:/Users/soumy/GitHub/Learn_embedded_software_dev/EmbeddedProjects/Bare_Metal_Projects/multi_firmware_expt_application/chip_headers/CMSIS/Core/Include" -I"D:/Users/soumy/GitHub/Learn_embedded_software_dev/EmbeddedProjects/Bare_Metal_Projects/multi_firmware_expt_application/chip_headers/CMSIS/Device/ST/STM32F4xx/Include" -O0 -ffunction-sections -fdata-sections -Wall -Wextra -pedantic -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "$@"
 
 clean: clean-Src
 

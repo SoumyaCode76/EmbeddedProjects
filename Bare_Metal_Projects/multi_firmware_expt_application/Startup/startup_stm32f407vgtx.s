@@ -95,7 +95,6 @@ LoopFillZerobss:
   bl __libc_init_array
 /* Call the application's entry point.*/
   bl main
-  bl Reset_Handler
 
 LoopForever:
     b LoopForever

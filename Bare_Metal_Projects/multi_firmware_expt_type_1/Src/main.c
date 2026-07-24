@@ -19,10 +19,10 @@
 #include "common.h"
 #include "bsp.h"
 
-#define APPLICATION_STACK_ADDRESS		(0x8010000) // Address of the application in flash memory
+#define APPLICATION_STACK_ADDRESS		(0x2001B100)//(0x8010000) // Address of the application in flash memory
 
 typedef void (*jump_to_app)(void);
-jump_to_app jump_to_application = *(jump_to_app)0x8010004; // Address of the application in flash memory
+jump_to_app jump_to_application = NULL;
 
 int main(void)
 {
@@ -42,15 +42,16 @@ int main(void)
 			if (app_stack_pointer == 0xFFFFFFFF) {
 				jump_to_application = NULL; // No application present, stay in bootloader
 			}
-			else {
+			else{
 				__disable_irq();
 				__disable_fault_irq();
 				__set_MSP(app_stack_pointer); // Set the main stack pointer to the application's stack pointer
+//				SCB->VTOR = APPLICATION_STACK_ADDRESS;
 				uart_string_print("Jumping to application\n");
 				while(!(UART_PERIPH->SR & USART_SR_TC));
 //				uart_deinit();
-//				__DSB();
-//				__ISB();
+				__DSB();
+				__ISB();
 				jump_to_application();
 		}
 	}
@@ -67,4 +68,9 @@ void HardFault_Handler(void)
 	}
 	led_on(LD5);
 	while(1);
+}
+
+void USART1_IRQHandler(void)
+{
+	uart_string_print("[BTL]: Running USART1_IRQHandler\n");
 }
