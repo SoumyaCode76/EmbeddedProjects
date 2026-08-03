@@ -45,7 +45,7 @@
 	#define LD6_PIN 															(15)
 	#define LD6_PORT 															(GPIOD)
 	enum Leds{
-		LD3 = 0,
+		LD3 = 0U,
 		LD4,
 		LD5,
 		LD6

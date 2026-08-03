@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdarg.h>
+#include <stdbool.h>
 
 #define NULL 												((void *)0)
 #define TRUE 												(1)

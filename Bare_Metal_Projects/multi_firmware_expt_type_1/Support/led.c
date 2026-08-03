@@ -109,4 +109,33 @@ void led_off(uint8_t led_number)
 #endif
 }
 
+void led_toggle(uint8_t led_number)
+{
+	// Turn off the LED
+#ifdef STM32F401xE
+	GPIOA->BSRR &= ~(0x1 << (LED_PIN)); // Reset the Bit set bit to turn off the LED
+	GPIOA->BSRR |= (0x1 << (LED_PIN + 16)); // Set the LED pin low
+#elif defined(STM32F407xx)
+	switch(led_number) {
+		case LD3:
+			LD3_PORT->ODR ^= (0x1 << LD3_PIN);
+			break;
+		case LD4:
+			LD4_PORT->ODR ^= (0x1 << LD4_PIN);
+			break;
+		case LD5:
+			LD5_PORT->ODR ^= (0x1 << LD5_PIN);
+			break;
+		case LD6:
+			LD6_PORT->ODR ^= (0x1 << LD6_PIN);
+			break;
+		default:
+			break; // Invalid LED number, do nothing
+	}
+#elif defined(STM32F429xx)
+	LED_PORT->BSRR &= ~(0x1 << (LED_PIN)); // Reset the Bit set bit to turn off the LED
+	LED_PORT->BSRR |= (0x1 << (LED_PIN + 16)); // Set the LED pin low
+#endif
+}
+
 

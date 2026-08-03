@@ -18,6 +18,7 @@ void uart_init(void)
 	UART_PIN_MUX_TX(); // Configure TX pin for UART alternate function
 	UART_PIN_MUX_RX(); // Configure RX pin for UART alternate function
 	UART_SET_BAUDRATE(); // Set baud rate
+	UART_PERIPH->CR1 |= USART_CR1_RXNEIE;	// Enable TX and RX interrupt
 	UART_PERIPH->CR1 |= USART_CR1_TE | USART_CR1_RE; // Enable transmitter and receiver
 	UART_PERIPH->CR1 |= USART_CR1_UE; // Enable UART
 }
@@ -31,13 +32,15 @@ void uart_deinit(void)
 	RCC_UART_CLK_DISABLE(); // Disable UART clock
 }
 
-void uart_send(uint8_t *data, uint16_t length)
+void uart_send(void *data, uint16_t length)
 {
 	// Send data over UART
+	static uint8_t * data_to_send = NULL;
+	data_to_send = (uint8_t *)data;
 	for (uint16_t i = 0; i < length; i++)
 	{
 		while (!(UART_PERIPH->SR & USART_SR_TXE)); // Wait until transmit data register is empty
-		UART_PERIPH->DR = data[i]; // Send data byte
+		UART_PERIPH->DR = data_to_send[i]; // Send data byte
 	}
 }
 
@@ -54,13 +57,15 @@ void uart_string_print(char * data)
 	}
 }
 
-void uart_receive(uint8_t *data, uint16_t length)
+void uart_receive(void *data, uint16_t length)
 {
 	// Receive data over UART
+	static uint8_t * data_to_receive = NULL;
+	data_to_receive = (uint8_t *)data;
 	for (uint16_t i = 0; i < length; i++)
 	{
 		while (!(UART_PERIPH->SR & USART_SR_RXNE)); // Wait until receive data register is not empty
-		data[i] = UART_PERIPH->DR; // Read received data byte
+		data_to_receive[i] = UART_PERIPH->DR; // Read received data byte
 	}
 }
 

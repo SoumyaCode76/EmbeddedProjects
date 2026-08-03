@@ -7,12 +7,14 @@
 
 typedef struct
 {
-	uint8_t buffer[QUEUE_SIZE];
-	uint16_t count_elements;
-} queue_t;
+	uint16_t push_index;
+	uint16_t pop_index;
+	uint16_t number_of_elements_inserted;
+	uint8_t storage[QUEUE_SIZE];
+}queue_t;
 
-void queue_init(void);
-void queue_push(queue_t * pLogQueue, const uint8_t * data, const uint32_t length);
-void queue_pop(queue_t * pLogQueue, uint8_t *data, uint32_t length);
+queue_t * queue_init(queue_t * const pLogQueue);
+void queue_push(queue_t * const pLogQueue, const uint8_t * const data, const uint32_t length);
+void queue_pop(queue_t * const pLogQueue, uint8_t * const data, const uint32_t length);
 
 #endif

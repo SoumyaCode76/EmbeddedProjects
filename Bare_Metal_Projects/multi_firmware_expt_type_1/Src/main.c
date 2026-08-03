@@ -19,7 +19,10 @@
 #include "common.h"
 #include "bsp.h"
 
-#define APPLICATION_STACK_ADDRESS		(0x2001B100)//(0x8010000) // Address of the application in flash memory
+/*
+ * The image to place must be 256-byte aligned
+ */
+#define APPLICATION_STACK_ADDRESS		(0x8010000)//(0x2001B100)//(0x8010000) // Address of the application in flash memory
 
 typedef void (*jump_to_app)(void);
 jump_to_app jump_to_application = NULL;
@@ -46,7 +49,7 @@ int main(void)
 				__disable_irq();
 				__disable_fault_irq();
 				__set_MSP(app_stack_pointer); // Set the main stack pointer to the application's stack pointer
-//				SCB->VTOR = APPLICATION_STACK_ADDRESS;
+				SCB->VTOR = APPLICATION_STACK_ADDRESS;
 				uart_string_print("Jumping to application\n");
 				while(!(UART_PERIPH->SR & USART_SR_TC));
 //				uart_deinit();
