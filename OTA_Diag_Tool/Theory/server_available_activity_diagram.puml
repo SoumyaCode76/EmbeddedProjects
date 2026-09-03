@@ -1,0 +1,24 @@
+@startuml
+start
+floating note right
+Is there a new client asking to connect?
+end note
+:Call server.available();
+
+:Check listening socket state;
+if (socket is listening?) then (yes)
+  :Attempt TCP accept() on server socket;
+  if (new client connection pending?) then (yes)
+    :Create a new WiFiClient object;
+    :Assign client socket to it;
+    :Return the client object;
+  else (no)
+    :Return invalid/empty client object;
+  endif
+else (no)
+  :Server not started or socket invalid;
+  :Return invalid/empty client object;
+endif
+
+stop
+@enduml
