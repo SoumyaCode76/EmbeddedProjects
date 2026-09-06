@@ -17,6 +17,25 @@ String loading_page ="<!DOCTYPE HTML>\n \
                     <br><a href=\"/ledon\"\"><button>LED ON</button></a>\n \
                     <a href=\"/ledoff\"\"><button>LED OFF</button></a><br/>";
 
+String loading_page_new = R"(<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP8266 Control Panel</title>
+    <style>
+        /* Paste the CSS here */
+    </style>
+</head>
+<body>
+    <!-- Paste the HTML body here -->
+    <script>
+        // Paste the JavaScript here
+    </script>
+</body>
+</html>)";
+
+
 String response_code[] = {"200", "204"};
 
 String html_class = "HTTP/1.1";

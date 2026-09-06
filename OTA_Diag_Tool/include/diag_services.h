@@ -1,0 +1,7 @@
+#ifndef __DIAG_SERVICES_H__
+#define __DIAG_SERVICES_H__
+
+#define VEHICLE_IDENTIFICATION_NUMBER           "WVWZZZ1JZXW000001"
+
+
+#endif
