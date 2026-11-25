@@ -272,3 +272,94 @@ qemu-system-arm \
     -d int,cpu_reset \
     -D qemu.log
 ```
+
+## 10. Dual-Core Bare-Metal Testing
+
+QEMU 8.2 does not provide an STM32 dual-core machine. It does not have a model for STM32H7 dual-core parts such as an STM32H747.
+
+For Cortex-M bare-metal dual-core experiments, use one of these QEMU machines:
+
+| QEMU machine | CPUs | Target |
+|---|---:|---|
+| `mps2-an521` | 2x Cortex-M33 | ARM MPS2 AN521 FPGA image |
+| `mps3-an524` | 2x Cortex-M33 | ARM MPS3 AN524 FPGA image |
+| `musca-a` | 2x Cortex-M33 | ARM Musca-A with TrustZone support |
+| `musca-b1` | 2x Cortex-M33 | ARM Musca-B1 with TrustZone support |
+
+List the available dual-core machines from the ARM machine catalog:
+
+```bash
+qemu-system-arm -machine help | grep -E 'mps2-an521|mps3-an524|musca-a|musca-b1'
+```
+
+### Build Cortex-M33 Firmware
+
+```bash
+export PATH="/opt/arm-gnu-toolchain-15.2.rel1-x86_64-arm-none-eabi/bin:$PATH"
+
+arm-none-eabi-gcc \
+    -mcpu=cortex-m33 \
+    -mthumb \
+    -ffreestanding \
+    -fno-builtin \
+    -nostdlib \
+    -T mps2-an521.ld \
+    -Wl,-Map=firmware.map \
+    -o firmware.elf \
+    startup.c main.c
+
+arm-none-eabi-objcopy -O binary firmware.elf firmware.bin
+```
+
+The startup code and linker script must contain valid mappings for the selected MPS or Musca board. Do not reuse an STM32 linker script unless its flash, RAM, vector table, and peripheral addresses are suitable for that board.
+
+### Run Two Cores
+
+```bash
+qemu-system-arm \
+    -M mps2-an521 \
+    -smp 2 \
+    -nographic \
+    -semihosting-config enable=on,target=native \
+    -kernel firmware.elf
+```
+
+Equivalent examples:
+
+```bash
+qemu-system-arm -M mps3-an524 -smp 2 -nographic -kernel firmware.elf
+qemu-system-arm -M musca-a -smp 2 -nographic -kernel firmware.elf
+qemu-system-arm -M musca-b1 -smp 2 -nographic -kernel firmware.elf
+```
+
+The `-smp 2` option asks QEMU to expose two CPUs. The firmware must still perform the required per-core initialization.
+
+### Dual-Core Firmware Requirements
+
+Bare-metal firmware for two cores should include:
+
+- Separate or core-aware stack initialization
+- A method to determine the current core, if the hardware or board supplies one
+- Core startup sequencing
+- Shared-memory layout and ownership rules
+- Synchronization primitives, such as spinlocks or event flags
+- Inter-core interrupt routing supported by the selected board
+- Semihosting or UART handling restricted to one designated core
+- Cache, TrustZone, MPU, and interrupt configuration appropriate to Cortex-M33
+
+Avoid testing a shared-memory protocol with a bare `for (...)` loop as the only synchronization mechanism. Use an atomic or hardware-backed lock, and validate memory ordering and interrupt behavior.
+
+### Cortex-A Alternative
+
+For general bare-metal multicore testing instead of Cortex-M dual-core testing, use QEMU's `virt` machine:
+
+```bash
+qemu-system-arm \
+    -M virt \
+    -cpu cortex-a15 \
+    -smp 2 \
+    -nographic \
+    -kernel firmware.elf
+```
+
+This is useful for Cortex-A startup and SMP experiments, but it is not an STM32 Cortex-M board and requires a Cortex-A-compatible startup and linker setup.
